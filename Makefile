@@ -448,6 +448,8 @@ else ifneq ($(call find-command,mips64-none-elf-ld),)
   CROSS := mips64-none-elf-
 else ifneq ($(call find-command,mips-ld),)
   CROSS := mips-
+else ifneq ($(call find-command,mips-suse-linux-ld ),)
+  CROSS := mips-suse-linux-
 else
   $(error Unable to detect a suitable MIPS toolchain installed)
 endif

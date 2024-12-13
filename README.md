@@ -210,4 +210,4 @@ A: Theoretically, all yes.
 
 ## Installation help
 
-Go read the original SM64 repo README.md
+Follow the build instructions from [the original SM64 decompilation's README.md](https://github.com/n64decomp/sm64/blob/master/README.md) with the extra step of running `sudo apt install gcc-mips-linux-gnu` before building HackerSM64.

@@ -1988,7 +1988,7 @@ s32 check_common_airborne_cancels(struct MarioState *m) {
     }
 
     m->quicksandDepth = 0.0f;
-    return FALSE;
+    return ACTION_FINISH;
 }
 
 s32 mario_execute_airborne_action(struct MarioState *m) {

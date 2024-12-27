@@ -169,13 +169,8 @@ void correct_lava_shadow_height(f32 *floorHeight) {
  * Uses environment alpha for shadow solidity.
  */
 static void add_shadow_to_display_list(Gfx *displayListHead, s8 shadowType) {
-    if (shadowType == SHADOW_CIRCLE) {
-        gSPDisplayList(displayListHead++, dl_shadow_circle);
-    } else {
-        gSPDisplayList(displayListHead++, dl_shadow_square);
-    }
     gDPSetEnvColor(displayListHead++, 255, 255, 255, s->solidity);
-    gSPDisplayList(displayListHead++, dl_shadow_end);
+    gSPDisplayList(displayListHead++, dl_shadow_tris);
     gSPEndDisplayList(displayListHead);
 }
 

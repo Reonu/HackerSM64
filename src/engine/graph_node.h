@@ -140,7 +140,7 @@ struct DisplayListNode {
     struct DisplayListNode *next;
 };
 
-struct DisplayListHead {
+struct DisplayListLinks {
     struct DisplayListNode* head;
     struct DisplayListNode* tail;
 };
@@ -151,7 +151,7 @@ struct Batch {
     const void* endDl;
 
     // filled in rendering of the master list
-    struct DisplayListHead list;
+    struct DisplayListLinks list;
 };
 
 struct BatchArray {
@@ -160,7 +160,7 @@ struct BatchArray {
 };
 
 struct MasterLayer {
-    struct DisplayListHead list;
+    struct DisplayListLinks list;
     struct BatchArray* objects;
 };
 

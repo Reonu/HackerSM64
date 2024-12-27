@@ -252,8 +252,7 @@ Mtx identityMatrixWorldScale = {{
      0x00000000,                            LOWER_FIXED(1.0f)               <<  0}
 }};
 
-static void lists_render(Gfx **ptempGfxHead, struct DisplayListNode* currList)
-{
+static void lists_render(Gfx **ptempGfxHead, struct DisplayListNode* currList) {
 #define tempGfxHead (*ptempGfxHead)
     do {
         gSPMatrix(tempGfxHead++, VIRTUAL_TO_PHYSICAL(currList->transform), (G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH));
@@ -263,8 +262,7 @@ static void lists_render(Gfx **ptempGfxHead, struct DisplayListNode* currList)
 #undef tempGfxHead
 }
 
-static int batches_render(Gfx **ptempGfxHead, struct BatchArray* arr, u32 mode1, u32 mode2)
-{
+static int batches_render(Gfx **ptempGfxHead, struct BatchArray* arr, u32 mode1, u32 mode2) {
 #define tempGfxHead (*ptempGfxHead)
     int amountRendered = 0;
 
@@ -287,11 +285,10 @@ static int batches_render(Gfx **ptempGfxHead, struct BatchArray* arr, u32 mode1,
     return amountRendered;
 }
 
-static void main_render(Gfx **ptempGfxHead, struct DisplayListNode* currList, u32 mode1, u32 mode2, int phaseIndex)
-{
-    (void)phaseIndex;
+static void main_render(Gfx **ptempGfxHead, struct DisplayListNode* currList, u32 mode1, u32 mode2, int phaseIndex) {
 #define tempGfxHead (*ptempGfxHead)
 #if defined(DISABLE_AA) || !SILHOUETTE
+    (void)phaseIndex;
     // Set the render mode for the current layer.
     gDPSetRenderMode(tempGfxHead++, mode1, mode2);
 #else
@@ -393,8 +390,7 @@ void geo_process_master_list_sub(struct GraphNodeMasterList *node) {
     gDisplayListHead = tempGfxHead;
 }
 
-static void append_dl(struct DisplayListHead* list, void* dl)
-{
+static void append_dl(struct DisplayListLinks* list, void* dl) {
     struct DisplayListNode *listNode = alloc_only_pool_alloc(gDisplayListHeap, sizeof(struct DisplayListNode));
 
     listNode->transform = gMatStackFixed[gMatStackIndex];

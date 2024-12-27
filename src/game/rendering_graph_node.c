@@ -447,7 +447,7 @@ void geo_append_display_list(void *displayList, s32 layer) {
     append_dl(&masterLayer->list, displayList);
 }
 
-static void geo_append_batched_display_list(void *displayList, enum RenderLayers layer, enum LayerBatches batch) {
+static void geo_append_batched_display_list(void *displayList, enum RenderLayers layer, s32 batch) {
 #ifdef F3DEX_GBI_2
     gSPLookAt(gDisplayListHead++, gCurLookAt);
 #endif
@@ -991,9 +991,9 @@ void geo_process_shadow(struct GraphNodeShadow *node) {
             s32 layer = gCurrShadow.isDecal ? LAYER_TRANSPARENT_DECAL : LAYER_CLD;
             s32 batch;
             if (node->shadowType == SHADOW_CIRCLE) {
-                batch = gCurrShadow.isDecal ? LAYER_TRANSPARENT_DECAL_SHADOW_CIRCLE : LAYER_CLD_SHADOW_CIRCLE;
+                batch = gCurrShadow.isDecal ? BATCH_TRANSPARENT_DECAL_SHADOW_CIRCLE : BATCH_CLD_SHADOW_CIRCLE;
             } else {
-                batch = gCurrShadow.isDecal ? LAYER_TRANSPARENT_DECAL_SHADOW_SQUARE : LAYER_CLD_SHADOW_SQUARE;
+                batch = gCurrShadow.isDecal ? BATCH_TRANSPARENT_DECAL_SHADOW_SQUARE : BATCH_CLD_SHADOW_SQUARE;
             }
             geo_append_batched_display_list((void *) VIRTUAL_TO_PHYSICAL(shadowList), layer, batch);
 

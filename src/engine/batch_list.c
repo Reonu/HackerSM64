@@ -18,16 +18,16 @@ static inline void batch_setup(struct BatchArray* arr, int idx, const void* star
 
 struct BatchArray* batch_list_objects_alloc_xlu_decal(struct AllocOnlyPool *pool)
 {
-    struct BatchArray* arr = batch_array_alloc(pool, LAYER_TRANSPARENT_DECAL_BATCHES_COUNT);
-    batch_setup(arr, LAYER_TRANSPARENT_DECAL_SHADOW_CIRCLE, dl_shadow_circle, dl_shadow_end);
-    batch_setup(arr, LAYER_TRANSPARENT_DECAL_SHADOW_SQUARE, dl_shadow_square, dl_shadow_end);
+    struct BatchArray* arr = batch_array_alloc(pool, BATCH_TRANSPARENT_DECAL_COUNT);
+    batch_setup(arr, BATCH_TRANSPARENT_DECAL_SHADOW_CIRCLE, dl_shadow_circle, dl_shadow_end);
+    batch_setup(arr, BATCH_TRANSPARENT_DECAL_SHADOW_SQUARE, dl_shadow_square, dl_shadow_end);
     return arr;
 }
 
 struct BatchArray* batch_list_objects_alloc_cld(struct AllocOnlyPool *pool)
 {
-    struct BatchArray* arr = batch_array_alloc(pool, LAYER_CLD_BATCHES_COUNT);
-    batch_setup(arr, LAYER_CLD_SHADOW_CIRCLE, dl_shadow_circle, dl_shadow_end);
-    batch_setup(arr, LAYER_CLD_SHADOW_SQUARE, dl_shadow_square, dl_shadow_end);
+    struct BatchArray* arr = batch_array_alloc(pool, BATCH_CLD_COUNT);
+    batch_setup(arr, BATCH_CLD_SHADOW_CIRCLE, dl_shadow_circle, dl_shadow_end);
+    batch_setup(arr, BATCH_CLD_SHADOW_SQUARE, dl_shadow_square, dl_shadow_end);
     return arr;
 }

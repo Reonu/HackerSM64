@@ -145,18 +145,15 @@ struct DisplayListLinks {
     struct DisplayListNode* tail;
 };
 
-struct Batch {
-    // filled in when master node is created
+struct BatchDisplayLists {
     const void* startDl;
     const void* endDl;
-
-    // filled in rendering of the master list
-    struct DisplayListLinks list;
 };
 
 struct BatchArray {
     int count;
-    struct Batch batches[0];
+    const struct BatchDisplayLists* batchDLs;
+    struct DisplayListLinks batches[0];
 };
 
 struct MasterLayer {

@@ -271,14 +271,15 @@ static int batches_render(Gfx **ptempGfxHead, struct BatchArray* arr, u32 mode1,
     gDPSetRenderMode(tempGfxHead++, mode1, mode2);
 
     for (int batch = 0; batch < arr->count; batch++) {
-        struct Batch* batches = &arr->batches[batch];
-        if (!batches->list.head)
+        struct DisplayListLinks* batchLinks = &arr->batches[batch];
+        if (!batchLinks->head)
             continue;
 
-        gSPDisplayList(tempGfxHead++, batches->startDl);
+        const struct BatchDisplayLists* batchDisplayLists = &arr->batchDLs[batch];
+        gSPDisplayList(tempGfxHead++, batchDisplayLists->startDl);
         amountRendered++;
-        lists_render(&tempGfxHead, batches->list.head);
-        gSPDisplayList(tempGfxHead++, batches->endDl);
+        lists_render(&tempGfxHead, batchLinks->head);
+        gSPDisplayList(tempGfxHead++, batchDisplayLists->endDl);
     }
 #undef tempGfxHead
 
@@ -449,7 +450,7 @@ static void geo_append_batched_display_list(void *displayList, enum RenderLayers
 #endif
     layer = mangle_silhouette_layer(layer);
     struct MasterLayer* masterLayer = &gCurGraphNodeMasterList->layers[layer];
-    append_dl(&masterLayer->objects->batches[batch].list, displayList);
+    append_dl(&masterLayer->objects->batches[batch], displayList);
 }
 
 static void inc_mat_stack() {
@@ -474,7 +475,7 @@ static void batches_clean(struct BatchArray* arr) {
         return;
 
     for (int batch = 0; batch < arr->count; batch++) {
-        arr->batches[batch].list.head = NULL;
+        arr->batches[batch].head = NULL;
     }
 }
 

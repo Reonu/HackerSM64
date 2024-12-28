@@ -65,6 +65,7 @@ enum GraphNodeTypes {
     GRAPH_NODE_TYPE_CULLING_RADIUS,
     GRAPH_NODE_TYPE_ROOT,
     GRAPH_NODE_TYPE_START,
+    GRAPH_NODE_TYPE_BATCH_DISPLAY_LIST,
 };
 
 // Passed as first argument to a GraphNodeFunc to give information about in
@@ -367,6 +368,12 @@ struct GraphNodeCullingRadius {
     // u8 filler[2];
 };
 
+struct GraphNodeBatchDisplayList {
+    struct GraphNode node;
+    void* displayList;
+    s16 batch;
+};
+
 extern struct GraphNodeMasterList  *gCurGraphNodeMasterList;
 extern struct GraphNodePerspective *gCurGraphNodeCamFrustum;
 extern struct GraphNodeCamera      *gCurGraphNodeCamera;
@@ -403,6 +410,7 @@ struct GraphNodeObjectParent        *init_graph_node_object_parent       (struct
 struct GraphNodeGenerated           *init_graph_node_generated           (struct AllocOnlyPool *pool, struct GraphNodeGenerated           *graphNode, GraphNodeFunc gfxFunc, s32 parameter);
 struct GraphNodeBackground          *init_graph_node_background          (struct AllocOnlyPool *pool, struct GraphNodeBackground          *graphNode, u16 background, GraphNodeFunc backgroundFunc, s32 zero);
 struct GraphNodeHeldObject          *init_graph_node_held_object         (struct AllocOnlyPool *pool, struct GraphNodeHeldObject          *graphNode, struct Object *objNode, Vec3s translation, GraphNodeFunc nodeFunc, s32 playerIndex);
+struct GraphNodeBatchDisplayList    *init_graph_node_batch_display_list  (struct AllocOnlyPool *pool, struct GraphNodeBatchDisplayList    *graphNode, void *displayList, s32 drawingLayer, s32 batch);
 
 struct GraphNode *geo_add_child       (struct GraphNode *parent, struct GraphNode *childNode);
 struct GraphNode *geo_remove_child    (struct GraphNode *graphNode);

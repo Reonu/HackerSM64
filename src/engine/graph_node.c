@@ -530,6 +530,21 @@ struct GraphNodeHeldObject *init_graph_node_held_object(struct AllocOnlyPool *po
     return graphNode;
 }
 
+struct GraphNodeBatchDisplayList* init_graph_node_batch_display_list(struct AllocOnlyPool *pool, struct GraphNodeBatchDisplayList *graphNode, void *displayList, s32 drawingLayer, s32 batch) {
+    if (pool != NULL) {
+        graphNode = alloc_only_pool_alloc(pool, sizeof(struct GraphNodeBatchDisplayList));
+    }
+
+    if (graphNode != NULL) {
+        init_scene_graph_node_links(&graphNode->node, GRAPH_NODE_TYPE_BATCH_DISPLAY_LIST);
+        SET_GRAPH_NODE_LAYER(graphNode->node.flags, drawingLayer);
+        graphNode->displayList = displayList;
+        graphNode->batch = batch;
+    }
+
+    return graphNode;
+}
+
 /**
  * Adds 'childNode' to the end of the list children from 'parent'
  */

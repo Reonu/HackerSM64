@@ -47,10 +47,10 @@
  *
  */
 
-s16 gMatStackIndex = 0;
-ALIGNED16 Mat4 gMatStack[32];
-ALIGNED16 Mtx *gMatStackFixed[32];
-f32 sAspectRatio;
+static s16 gMatStackIndex = 0;
+static ALIGNED16 Mat4 gMatStack[32];
+static ALIGNED16 Mtx *gMatStackFixed[32];
+static f32 sAspectRatio;
 
 /**
  * Animation nodes have state in global variables, so this struct captures
@@ -463,6 +463,16 @@ static void inc_mat_stack() {
 static void append_dl_and_return(struct GraphNodeDisplayList *node) {
     if (node->displayList != NULL) {
         geo_append_display_list(node->displayList, GET_GRAPH_NODE_LAYER(node->node.flags));
+    }
+    if (node->node.children != NULL) {
+        geo_process_node_and_siblings(node->node.children);
+    }
+    gMatStackIndex--;
+}
+
+static void append_batched_dl_and_return(struct GraphNodeBatchDisplayList *node) {
+    if (node->displayList != NULL) {
+        geo_append_batched_display_list(node->displayList, GET_GRAPH_NODE_LAYER(node->node.flags), node->batch);
     }
     if (node->node.children != NULL) {
         geo_process_node_and_siblings(node->node.children);
@@ -1253,6 +1263,12 @@ void geo_process_held_object(struct GraphNodeHeldObject *node) {
     }
 }
 
+void geo_process_batch_display_list(struct GraphNodeBatchDisplayList *node) {
+    append_batched_dl_and_return((struct GraphNodeBatchDisplayList *)node);
+
+    gMatStackIndex++;
+}
+
 /**
  * Processes the children of the given GraphNode if it has any
  */
@@ -1288,6 +1304,7 @@ static GeoProcessFunc GeoProcessJumpTable[] = {
     [GRAPH_NODE_TYPE_CULLING_RADIUS      ] = geo_try_process_children,
     [GRAPH_NODE_TYPE_ROOT                ] = geo_try_process_children,
     [GRAPH_NODE_TYPE_START               ] = geo_try_process_children,
+    [GRAPH_NODE_TYPE_BATCH_DISPLAY_LIST  ] = geo_process_batch_display_list,
 };
 
 /**

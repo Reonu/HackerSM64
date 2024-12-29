@@ -523,7 +523,7 @@ static s32 act_breaststroke(struct MarioState *m) {
     }
 
     if (check_water_jump(m)) {
-        return TRUE;
+        return ACTION_CONTINUE;
     }
 
     if (m->actionTimer < 6) {
@@ -579,7 +579,7 @@ static s32 act_swimming_end(struct MarioState *m) {
     }
 
     if (check_water_jump(m)) {
-        return TRUE;
+        return ACTION_CONTINUE;
     }
 
     if ((m->input & INPUT_A_DOWN) && m->actionTimer >= 7) {
@@ -649,7 +649,7 @@ static s32 act_hold_breaststroke(struct MarioState *m) {
     }
 
     if (check_water_jump(m)) {
-        return TRUE;
+        return ACTION_CONTINUE;
     }
 
     if (m->actionTimer < 6) {
@@ -700,7 +700,7 @@ static s32 act_hold_swimming_end(struct MarioState *m) {
     }
 
     if (check_water_jump(m)) {
-        return TRUE;
+        return ACTION_CONTINUE;
     }
 
     if ((m->input & INPUT_A_DOWN) && m->actionTimer >= 7) {
@@ -780,7 +780,7 @@ static s32 check_water_grab(struct MarioState *m) {
             m->usedObj = object;
             mario_grab_used_object(m);
             m->marioBodyState->grabPos = GRAB_POS_LIGHT_OBJ;
-            return TRUE;
+            return ACTION_CONTINUE;
         }
     }
 

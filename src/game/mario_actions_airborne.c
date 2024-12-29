@@ -130,7 +130,7 @@ s32 check_fall_damage_or_get_stuck(struct MarioState *m, u32 hardFallAction) {
 #if ENABLE_RUMBLE
         queue_rumble_data(5, 80);
 #endif
-        return TRUE;
+        return ACTION_CONTINUE;
     }
 
     return check_fall_damage(m, hardFallAction);

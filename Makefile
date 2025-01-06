@@ -470,8 +470,10 @@ else ifeq ($(COMPILER),clang)
 endif
 
 OS := $(shell uname)
+ARCH := $(shell uname -p)
 
-ifeq ($(OS), Darwin)
+# Check if we're running MacOS, then check processor architecture.
+ifeq ($(ARCH), arm64)
   LD := tools/mips64-elf-ld-arm
 else
   ifneq ($(call find-command,mips-n64-ld),)

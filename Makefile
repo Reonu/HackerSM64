@@ -664,7 +664,12 @@ unf: $(ROM) $(LOADER_EXEC)
 libultra: $(BUILD_DIR)/libultra.a
 
 patch: $(ROM)
+ifeq ($(shell uname), Darwin)
+  $(error "The 'make patch' command is not supported on macOS.")
+else
 	$(FLIPS) --create --bps $(shell python3 tools/detect_baseroms.py $(VERSION)) $(ROM) $(BUILD_DIR)/$(TARGET_STRING).bps
+endif
+
 
 # Extra object file dependencies
 $(BUILD_DIR)/asm/ipl3.o:              $(IPL3_RAW_FILES)

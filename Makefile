@@ -473,10 +473,9 @@ else ifeq ($(COMPILER),clang)
   CXX     := clang++
 endif
 
-OS := $(shell uname)
 ARCH := $(shell uname -p)
 
-# Check if we're running MacOS, then check processor architecture.
+# Check processor architecture. ARM users need a different binutils package.
 ifeq ($(ARCH), arm)
   LD := tools/mips64-elf-ld-arm
 else

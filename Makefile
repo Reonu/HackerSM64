@@ -468,16 +468,17 @@ else ifeq ($(COMPILER),clang)
   CC      := clang
   CXX     := clang++
 endif
-# Prefer gcc's cpp if installed on the system
-ifneq (,$(call find-command,cpp-10))
-  CPP     := cpp-10
+
+OS := $(shell uname)
+
+ifeq ($(OS), Darwin)
+  LD := tools/mips64-elf-ld-arm
 else
-  CPP     := cpp
-endif
-ifneq ($(call find-command,mips-n64-ld),)
-LD        := mips-n64-ld
-else
-LD        := tools/mips64-elf-ld
+  ifneq ($(call find-command,mips-n64-ld),)
+    LD        := mips-n64-ld
+  else
+    LD        := tools/mips64-elf-ld
+  endif
 endif
 AR        := $(CROSS)ar
 OBJDUMP   := $(CROSS)objdump
@@ -503,6 +504,18 @@ endif
 C_DEFINES := $(foreach d,$(DEFINES),-D$(d))
 DEF_INC_CFLAGS := $(foreach i,$(INCLUDE_DIRS),-I$(i)) $(C_DEFINES)
 
+# Prefer gcc's cpp if installed on the system
+ifneq (,$(call find-command,clang))
+  CPP     := clang
+  CPPFLAGS := -E -P -x c -Wno-trigraphs $(DEF_INC_CFLAGS)
+else ifneq (,$(call find-command,cpp-10))
+  CPP     := cpp-10
+  CPPFLAGS := -P -Wno-trigraphs $(DEF_INC_CFLAGS)
+else
+  CPP     := cpp
+  CPPFLAGS := -P -Wno-trigraphs $(DEF_INC_CFLAGS)
+endif
+
 # C compiler options
 CFLAGS = -G 0 $(OPT_FLAGS) $(TARGET_CFLAGS) $(MIPSISET) $(DEF_INC_CFLAGS)
 ifeq ($(COMPILER),gcc)
@@ -520,7 +533,6 @@ ASFLAGS     := -march=vr4300 -mabi=32 $(foreach i,$(INCLUDE_DIRS),-I$(i)) $(fore
 RSPASMFLAGS := $(foreach d,$(DEFINES),-definelabel $(subst =, ,$(d)))
 
 # C preprocessor flags
-CPPFLAGS := -P -Wno-trigraphs $(DEF_INC_CFLAGS)
 
 #==============================================================================#
 # Miscellaneous Tools                                                          #

@@ -171,6 +171,13 @@
     #define DISABLE_DEMO
 #endif // !KEEP_MARIO_HEAD
 
+#ifdef DEMO_RECORDING_MODE
+    #ifndef TEST_LEVEL
+// assume user is testing the start level
+        #define TEST_LEVEL START_LEVEL
+    #endif
+#endif
+
 
 /*****************
  * config_menu.h

@@ -10,6 +10,12 @@ LDFLAGS      := -lm
 ALL_PROGRAMS := armips filesizer rncpack n64graphics n64graphics_ci mio0 slienc n64cksum textconv aifc_decode aiff_extract_codebook vadpcm_enc tabledesign extract_data_for_mio skyconv
 LIBAUDIOFILE := audiofile/libaudiofile.a
 
+OS := $(shell uname)
+
+ifneq ($(OS), Darwin)
+  ALL_PROGRAMS += flips
+endif
+
 ifeq ($(OS),Windows_NT)
   EXT := .exe
   OUTPUTS := $(ALL_PROGRAMS:=.exe)

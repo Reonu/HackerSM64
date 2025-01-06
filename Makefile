@@ -473,7 +473,7 @@ OS := $(shell uname)
 ARCH := $(shell uname -p)
 
 # Check if we're running MacOS, then check processor architecture.
-ifeq ($(ARCH), arm64)
+ifeq ($(ARCH), arm)
   LD := tools/mips64-elf-ld-arm
 else
   ifneq ($(call find-command,mips-n64-ld),)

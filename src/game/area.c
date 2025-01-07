@@ -86,8 +86,8 @@ u8 sSpawnTypeFromWarpBhv[] = {
 
 #ifdef F3DEX_GBI_3
 Vp gViewport = { {
-    { 640, 480, 511, 0 },
-    { 640, 480, 511, 0 },
+    { 640,-480, G_NEW_MAXZ / 2, 0 },
+    { 640, 480, G_NEW_MAXZ / 2, 0 },
 } };
 #else
 Vp gViewport = { {

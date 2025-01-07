@@ -1,5 +1,7 @@
 #include <ultra64.h>
 
+#include "PR/gbi.h"
+#include "config/config_rom.h"
 #include "sm64.h"
 #include "gfx_dimensions.h"
 #include "audio/external.h"
@@ -149,19 +151,24 @@ void init_z_buffer(s32 resetZB) {
     Gfx *tempGfxHead = gDisplayListHead;
 
     gDPPipeSync(tempGfxHead++);
-
     gDPSetDepthSource(tempGfxHead++, G_ZS_PIXEL);
     gDPSetDepthImage(tempGfxHead++, gPhysicalZBuffer);
 
-    gDPSetColorImage(tempGfxHead++, G_IM_FMT_RGBA, G_IM_SIZ_16b, SCREEN_WIDTH, gPhysicalZBuffer);
-    if (!resetZB)
+    if (!resetZB) {
         return;
+    }
+
+
+#ifdef F3DEX_GBI_3
+    gSPMemset(tempGfxHead++, gPhysicalZBuffer, 0xFFFC, SCREEN_WIDTH * SCREEN_HEIGHT * 2);
+#else
+    gDPSetColorImage(tempGfxHead++, G_IM_FMT_RGBA, G_IM_SIZ_16b, SCREEN_WIDTH, gPhysicalZBuffer);
     gDPSetFillColor(tempGfxHead++,
                     GPACK_ZDZ(G_MAXFBZ, 0) << 16 | GPACK_ZDZ(G_MAXFBZ, 0));
 
     gDPFillRectangle(tempGfxHead++, 0, gBorderHeight, SCREEN_WIDTH - 1,
                      SCREEN_HEIGHT - 1 - gBorderHeight);
-
+#endif
     gDisplayListHead = tempGfxHead;
 }
 
@@ -188,7 +195,9 @@ void select_framebuffer(void) {
  */
 void clear_framebuffer(s32 color) {
     Gfx *tempGfxHead = gDisplayListHead;
-
+#ifdef F3DEX_GBI_3
+    gSPMemset(tempGfxHead++, gPhysicalFramebuffers[sRenderingFramebuffer], color, SCREEN_WIDTH * SCREEN_HEIGHT * 2);
+#else
     gDPPipeSync(tempGfxHead++);
 
     gDPSetRenderMode(tempGfxHead++, G_RM_OPA_SURF, G_RM_OPA_SURF2);
@@ -204,6 +213,7 @@ void clear_framebuffer(s32 color) {
     gDPSetCycleType(tempGfxHead++, G_CYC_1CYCLE);
 
     gDisplayListHead = tempGfxHead;
+#endif
 }
 
 /**

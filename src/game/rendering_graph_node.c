@@ -1266,7 +1266,7 @@ void geo_process_root(struct GraphNodeRoot *node, Vp *b, Vp *c, s32 clearColor) 
         vec3s_set(viewport->vp.vscale, node->width * 4, node->height * -4, G_NEW_MAXZ / 2);
 #else
         vec3s_set(viewport->vp.vtrans, node->x * 4, node->y * 4, 511);
-        vec3s_set(viewport->vp.vscale, node->width * 4, node->height * -4, 511);
+        vec3s_set(viewport->vp.vscale, node->width * 4, node->height * 4, 511);
 #endif
 
 

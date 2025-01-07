@@ -160,7 +160,7 @@ void init_z_buffer(s32 resetZB) {
 
 
 #ifdef F3DEX_GBI_3
-    gSPMemset(tempGfxHead++, gPhysicalZBuffer, 0xFFFC, SCREEN_WIDTH * SCREEN_HEIGHT * 2);
+    gSPMemset(tempGfxHead++, gPhysicalZBuffer, GPACK_ZDZ(G_MAXFBZ, 0), SCREEN_WIDTH * SCREEN_HEIGHT * 2);
 #else
     gDPSetColorImage(tempGfxHead++, G_IM_FMT_RGBA, G_IM_SIZ_16b, SCREEN_WIDTH, gPhysicalZBuffer);
     gDPSetFillColor(tempGfxHead++,

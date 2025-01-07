@@ -2,6 +2,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 
+#include "PR/gbi.h"
 #include "debug_utils.h"
 #include "draw_objects.h"
 #include "dynlist_proc.h"
@@ -2265,13 +2266,25 @@ static void gd_dl_viewport(void) {
     vp = &DL_CURRENT_VP(sCurrentGdDl);
 
     vp->vp.vscale[0] = (s16)(sActiveView->lowerRight.x * 2.0f);  // x scale
+#ifdef F3DEX_GBI_3
+    vp->vp.vscale[1] = (s16)(sActiveView->lowerRight.y * -2.0f);  // y scale
+#else
     vp->vp.vscale[1] = (s16)(sActiveView->lowerRight.y * 2.0f);  // y scale
-    vp->vp.vscale[2] = 0x1FF;  // z scale
+#endif
+#ifdef F3DEX_GBI_3 // z scale
+    vp->vp.vscale[2] = G_NEW_MAXZ / 2;
+#else
+    vp->vp.vscale[2] = 0x1FF;
+#endif
     vp->vp.vscale[3] = 0x000;
 
     vp->vp.vtrans[0] = (s16)((sActiveView->upperLeft.x * 4.0f) + (sActiveView->lowerRight.x * 2.0f));  // x offset
     vp->vp.vtrans[1] = (s16)((sActiveView->upperLeft.y * 4.0f) + (sActiveView->lowerRight.y * 2.0f));  // y offset
-    vp->vp.vtrans[2] = 0x1FF;  // z offset
+#ifdef F3DEX_GBI_3 // z offset
+    vp->vp.vtrans[2] = G_NEW_MAXZ / 2;
+#else
+    vp->vp.vtrans[2] = 0x1FF;
+#endif
     vp->vp.vtrans[3] = 0x000;
 
     gSPViewport(next_gfx(), osVirtualToPhysical(vp));

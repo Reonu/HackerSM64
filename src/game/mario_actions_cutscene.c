@@ -40,7 +40,7 @@ ModelID32 gStarModelLastCollected = MODEL_STAR;
 #ifdef F3DEX_GBI_3
 Vp sEndCutsceneVp = {
     {
-        { (SCREEN_WIDTH  * 2), (SCREEN_HEIGHT * 2), G_NEW_MAXZ / 2, 0 },
+        { (SCREEN_WIDTH  * 2), -(SCREEN_HEIGHT * 2), G_NEW_MAXZ / 2, 0 },
         { (SCREEN_WIDTH  * 2), (SCREEN_HEIGHT * 2), G_NEW_MAXZ / 2, 0 }
     }
 };

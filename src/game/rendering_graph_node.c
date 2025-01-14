@@ -350,9 +350,7 @@ void geo_process_master_list_sub(struct GraphNodeMasterList *node) {
  * render modes of layers.
  */
 void geo_append_display_list(void *displayList, s32 layer) {
-#ifdef F3DEX_GBI_2
     gSPLookAt(gDisplayListHead++, gCurLookAt);
-#endif
 #if SILHOUETTE
     if (gCurGraphNodeObject != NULL) {
         if (gCurGraphNodeObject->node.flags & GRAPH_RENDER_SILHOUETTE) {
@@ -574,7 +572,6 @@ void geo_process_camera(struct GraphNodeCamera *node) {
     mtxf_lookat(gCameraTransform, node->pos, node->focus, node->roll);
 
     // Calculate the lookAt
-#ifdef F3DEX_GBI_2
     // @bug This is where the LookAt values should be calculated but aren't.
     // As a result, environment mapping is broken on Fast3DEX2 without the
     // changes below.
@@ -590,7 +587,6 @@ void geo_process_camera(struct GraphNodeCamera *node) {
     gCurLookAt->l[1].l.dir[0] = (s8)(127.0f * -(*cameraMatrix)[0][1]);
     gCurLookAt->l[1].l.dir[1] = (s8)(127.0f * -(*cameraMatrix)[1][1]);
     gCurLookAt->l[1].l.dir[2] = (s8)(127.0f * -(*cameraMatrix)[2][1]);
-#endif // F3DEX_GBI_2
 
 #if WORLD_SCALE > 1
     // Make a copy of the view matrix and scale its translation based on WORLD_SCALE
@@ -1126,9 +1122,7 @@ void geo_process_held_object(struct GraphNodeHeldObject *node) {
     Vec3f translation;
     Mat4 tempMtx;
 
-#ifdef F3DEX_GBI_2
     gSPLookAt(gDisplayListHead++, gCurLookAt);
-#endif
 
     if (node->fnNode.func != NULL) {
         node->fnNode.func(GEO_CONTEXT_RENDER, &node->fnNode.node, gMatStack[gMatStackIndex]);

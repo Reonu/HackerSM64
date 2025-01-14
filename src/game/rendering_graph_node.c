@@ -540,6 +540,10 @@ void setup_global_light() {
     Lights1* curLight = (Lights1*)alloc_display_list(sizeof(Lights1));
     bcopy(&defaultLight, curLight, sizeof(Lights1));
 
+#ifdef F3DEX_GBI_3
+    curLight->l->l.size = 1;
+#endif
+
 #ifdef WORLDSPACE_LIGHTING
     curLight->l->l.dir[0] = (s8)(globalLightDirection[0]);
     curLight->l->l.dir[1] = (s8)(globalLightDirection[1]);
@@ -602,6 +606,15 @@ void geo_process_camera(struct GraphNodeCamera *node) {
     guMtxF2L(gCameraTransform, viewMtx);
 #endif
     gSPMatrix(gDisplayListHead++, VIRTUAL_TO_PHYSICAL(viewMtx), G_MTX_PROJECTION | G_MTX_MUL | G_MTX_NOPUSH);
+
+#ifdef F3DEX_GBI_3
+    PlainVtx *cameraWorld = alloc_display_list(sizeof(PlainVtx));
+    cameraWorld->c.pos[0] = node->pos[0] / WORLD_SCALE;
+    cameraWorld->c.pos[1] = node->pos[1] / WORLD_SCALE;
+    cameraWorld->c.pos[2] = node->pos[2] / WORLD_SCALE;
+    gSPCameraWorld(gDisplayListHead++, cameraWorld);
+#endif
+
     setup_global_light();
 
     if (node->fnNode.node.children != 0) {
@@ -738,7 +751,7 @@ void geo_process_background(struct GraphNodeBackground *node) {
         geo_append_display_list((void *) VIRTUAL_TO_PHYSICAL(list), GET_GRAPH_NODE_LAYER(node->fnNode.node.flags));
     } else if (gCurGraphNodeMasterList != NULL) {
 #ifdef F3DEX_GBI_3
-  Gfx *gfxStart = alloc_display_list(sizeof(Gfx) * 2);
+        Gfx *gfxStart = alloc_display_list(sizeof(Gfx) * 2);
 #else
     #ifndef F3DEX_GBI_2E
         Gfx *gfxStart = alloc_display_list(sizeof(Gfx) * 7);

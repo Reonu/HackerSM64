@@ -3176,7 +3176,11 @@ const Gfx dl_paintings_rippling_end[] = {
 // 0x020149C8 - 0x02014A00
 const Gfx dl_paintings_env_mapped_begin[] = {
     gsDPPipeSync(),
+#ifdef F3DEX_GBI_3
+    gsSPSetGeometryMode(G_LIGHTING | G_LIGHTING_SPECULAR | G_TEXTURE_GEN),
+#else
     gsSPSetGeometryMode(G_LIGHTING | G_TEXTURE_GEN),
+#endif
     gsDPSetCombineMode(G_CC_DECALRGB, G_CC_DECALRGB),
     gsSPLightColor(LIGHT_1, 0xffffffff),
     gsSPLightColor(LIGHT_2, 0x505050ff),
@@ -3188,7 +3192,11 @@ const Gfx dl_paintings_env_mapped_begin[] = {
 const Gfx dl_paintings_env_mapped_end[] = {
     gsSPTexture(0x4000, 0x4000, 0, G_TX_RENDERTILE, G_OFF),
     gsDPPipeSync(),
+#ifdef F3DEX_GBI_3
+    gsSPGeometryModeSetFirst(G_TEXTURE_GEN | G_LIGHTING_SPECULAR, G_LIGHTING),
+#else
     gsSPGeometryModeSetFirst(G_TEXTURE_GEN, G_LIGHTING),
+#endif
     gsDPSetCombineMode(G_CC_SHADE, G_CC_SHADE),
     gsSPEndDisplayList(),
 };

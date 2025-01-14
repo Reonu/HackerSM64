@@ -37,6 +37,13 @@
 #define MTX_FRACPART_PACK(w1, w2) ((((w1) << 16) & 0xFFFF0000) | ((w2) &0xFFFF))
 #define LOOKAT_PACK(c) ((s32) MIN(((c) * (128.0)), 127.0) & 0xff)
 
+#ifdef F3DEX_GBI_3
+static PlainVtx* cameraWorldPosPtr;
+#define GD_MAX_VTX 54
+#else
+#define GD_MAX_VTX 12
+#endif
+
 // structs
 struct GdDisplayList {
     /* Vertices */
@@ -1835,7 +1842,13 @@ void gd_dl_lookat(struct ObjCamera *cam, f32 arg1, f32 arg2, f32 arg3, f32 arg4,
     mat4_to_mtx(&cam->unkE8, &DL_CURRENT_MTX(sCurrentGdDl));
     gSPMatrix(next_gfx(), osVirtualToPhysical(&DL_CURRENT_MTX(sCurrentGdDl)),
             G_MTX_PROJECTION | G_MTX_MUL | G_MTX_NOPUSH);
-
+#ifdef F3DEX_GBI_3
+    cameraWorldPosPtr = gd_allocblock(sizeof(PlainVtx));
+    cameraWorldPosPtr->c.pos[0] = (s16)cam->worldPos.x;
+    cameraWorldPosPtr->c.pos[0] = (s16)cam->worldPos.y;
+    cameraWorldPosPtr->c.pos[0] = (s16)cam->worldPos.z;
+    gSPCameraWorld(next_gfx(), cameraWorldPosPtr);
+#endif
     /*  col           colc          dir
         0  1  2   3   4  5  6   7   8  9  10  11
     { { 0, 0, 0}, _, {0, 0, 0}, _, {0, 0, 0}, _}
@@ -1959,7 +1972,7 @@ Vtx *gd_dl_make_vertex(f32 x, f32 y, f32 z, f32 alpha) {
 /* 24E6C0 -> 24E724 */
 void func_8019FEF0(void) {
     sTriangleBufCount++;
-    if (sVertexBufCount >= 12) {
+    if (sVertexBufCount >= GD_MAX_VTX) {
         gd_dl_flush_vertices();
         func_801A0038();
     }
@@ -1988,22 +2001,22 @@ void func_801A0038(void) {
     sVertexBufStartIndex = sCurrentGdDl->curVtxIdx;
 }
 
-/* 24E840 -> 24E9BC */
+// From M&Ms https://github.com/FazanaJ/ultrasm64/blob/m%26m's/src/goddard/renderer.c
 void gd_dl_flush_vertices(void) {
-    UNUSED u8 filler[4];
     s32 i;
-    UNUSED s32 startvtx = sVertexBufStartIndex;
 
     if (sVertexBufCount != 0) {
         // load vertex data
-        gSPVertex(next_gfx(), osVirtualToPhysical(&sCurrentGdDl->vtx[sVertexBufStartIndex]), sVertexBufCount, 0);
+        gSPVertex(&sCurrentGdDl->gfx[sCurrentGdDl->curGfxIdx++], osVirtualToPhysical(&sCurrentGdDl->vtx[sVertexBufStartIndex]), sVertexBufCount, 0);
         // load triangle data
         for (i = 0; i < sTriangleBufCount; i++) {
-            gSP1Triangle(next_gfx(),
-                sTriangleBuf[i][0] - sVertexBufStartIndex,
-                sTriangleBuf[i][1] - sVertexBufStartIndex,
-                sTriangleBuf[i][2] - sVertexBufStartIndex,
-                0);
+            if (sTriangleBufCount - i > 1) {
+                gSP2Triangles(&sCurrentGdDl->gfx[sCurrentGdDl->curGfxIdx++], sTriangleBuf[i][0] - sVertexBufStartIndex, sTriangleBuf[i][1] - sVertexBufStartIndex, sTriangleBuf[i][2] - sVertexBufStartIndex, 0,
+                                        sTriangleBuf[i + 1][0] - sVertexBufStartIndex, sTriangleBuf[i + 1][1] - sVertexBufStartIndex, sTriangleBuf[i + 1][2] - sVertexBufStartIndex, 0);
+                                        i++;
+            } else {
+                gSP1Triangle(&sCurrentGdDl->gfx[sCurrentGdDl->curGfxIdx++], sTriangleBuf[i][0] - sVertexBufStartIndex, sTriangleBuf[i][1] - sVertexBufStartIndex, sTriangleBuf[i][2] - sVertexBufStartIndex, 0);
+            }
         }
     }
     func_801A0038();
@@ -2173,6 +2186,11 @@ s32 gd_dl_material_lighting(s32 id, struct GdColour *colour, s32 material) {
             DL_CURRENT_LIGHT(sCurrentGdDl).l[0].l.colc[1] = 0;
             DL_CURRENT_LIGHT(sCurrentGdDl).l[0].l.colc[2] = 0;
 
+#ifdef F3DEX_GBI_3
+            DL_CURRENT_LIGHT(sCurrentGdDl).l[0].l.type = 0;
+            DL_CURRENT_LIGHT(sCurrentGdDl).l[0].l.size = 1;
+#endif
+
             gSPNumLights(next_gfx(), NUMLIGHTS_1);
             gSPLight(next_gfx(), osVirtualToPhysical(&DL_CURRENT_LIGHT(sCurrentGdDl).l), LIGHT_1);
             gSPLight(next_gfx(), osVirtualToPhysical(&DL_CURRENT_LIGHT(sCurrentGdDl).a), LIGHT_2);
@@ -2217,11 +2235,15 @@ s32 gd_dl_material_lighting(s32 id, struct GdColour *colour, s32 material) {
         DL_CURRENT_LIGHT(sCurrentGdDl).l[i].l.dir[0] = lightDir[0];
         DL_CURRENT_LIGHT(sCurrentGdDl).l[i].l.dir[1] = lightDir[1];
         DL_CURRENT_LIGHT(sCurrentGdDl).l[i].l.dir[2] = lightDir[2];
-        // 801A14C4
+#ifdef F3DEX_GBI_3
+        DL_CURRENT_LIGHT(sCurrentGdDl).l[i].l.type = 0;
+        DL_CURRENT_LIGHT(sCurrentGdDl).l[i].l.size = 1;
+#endif
+      // 801A14C4
         gSPLight(next_gfx(), osVirtualToPhysical(&DL_CURRENT_LIGHT(sCurrentGdDl).l[i]), i + 1);
     }
     // L801A1550
-    gSPLight(next_gfx(), osVirtualToPhysical(&DL_CURRENT_LIGHT(sCurrentGdDl)), i + 1);
+    gSPLight(next_gfx(), osVirtualToPhysical(&DL_CURRENT_LIGHT(sCurrentGdDl).a), i + 1);
     next_light();
     gd_enddlsplist();
     return 0;
@@ -2402,7 +2424,12 @@ void start_view_dl(struct ObjView *view) {
 
     gDPSetScissor(next_gfx(), G_SC_NON_INTERLACE, ulx, uly, lrx, lry);
     gSPClearGeometryMode(next_gfx(), 0xFFFFFFFF);
+#ifdef F3DEX_GBI_3
+    gSPSetGeometryMode(next_gfx(), G_LIGHTING | G_LIGHTING_SPECULAR | G_CULL_BACK | G_SHADING_SMOOTH | G_SHADE);
+#else
     gSPSetGeometryMode(next_gfx(), G_LIGHTING | G_CULL_BACK | G_SHADING_SMOOTH | G_SHADE);
+#endif
+
     if (view->flags & VIEW_ALLOC_ZBUF) {
         gSPSetGeometryMode(next_gfx(), G_ZBUFFER);
     }
@@ -2634,10 +2661,18 @@ void gd_setproperty(enum GdProperty prop, f32 f1, f32 f2, f32 f3) {
             parm = (s32) f1;
             switch (parm) {
                 case 1:
+#ifdef F3DEX_GBI_3
+                    gSPSetGeometryMode(next_gfx(), G_LIGHTING | G_LIGHTING_SPECULAR);
+#else
                     gSPSetGeometryMode(next_gfx(), G_LIGHTING);
+#endif
                     break;
                 case 0:
+#ifdef F3DEX_GBI_3
+                    gSPClearGeometryMode(next_gfx(), G_LIGHTING | G_LIGHTING_SPECULAR);
+#else
                     gSPClearGeometryMode(next_gfx(), G_LIGHTING);
+#endif
                     break;
             }
             break;

@@ -35,7 +35,7 @@
 #include "emutest.h"
 
 // Emulators that the Instant Input patch should not be applied to
-#define INSTANT_INPUT_BLACKLIST (EMU_CONSOLE | EMU_WIIVC | EMU_ARES | EMU_SIMPLE64 | EMU_CEN64)
+#define INSTANT_INPUT_BLACKLIST (EMU_CONSOLE | EMU_WIIVC | EMU_ARES | EMU_SIMPLE64 | EMU_CEN64 | DISABLE_INSTANT_INPUT)
 
 // Gfx handlers
 struct SPTask *gGfxSPTask;
@@ -411,7 +411,7 @@ void render_init(void) {
     gDisplayListHead = gGfxPool->buffer;
     gGfxPoolEnd = (u8 *)(gGfxPool->buffer + GFX_POOL_SIZE);
     init_rcp(CLEAR_ZBUFFER);
-    clear_framebuffer(0);
+    clear_framebuffer(0x0001);
     end_master_display_list();
     exec_display_list(&gGfxPool->spTask);
 

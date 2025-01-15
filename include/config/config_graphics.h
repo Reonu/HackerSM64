@@ -154,6 +154,12 @@
 // #define USE_FRUSTRATIO2
 
 /**
+ * Disables instant input.
+ * Mostly used for debugging purposes, or for future-proofing a release if concerned.
+ */
+//#define DISABLE_INSTANT_INPUT
+
+/**
  * Primary graphics microcode selection
  * Define F3DEX_VERSION as one of the following to select the primary graphics microcode:
  * 1 - F3DEX   - Worse console performance for improved Z-buffer precision.
@@ -181,4 +187,4 @@
  * Might have issues.
  */
 
-// #define F3DEX3_FB_MEMCLEAR
+//#define F3DEX3_FB_MEMCLEAR

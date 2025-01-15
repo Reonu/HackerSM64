@@ -175,3 +175,10 @@
  */
 
 // #define ENABLE_LINE_UCODE
+
+/**
+ * Enables RSP MemSet for FB clear.
+ * Might have issues.
+ */
+
+// #define F3DEX3_FB_MEMCLEAR

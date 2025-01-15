@@ -3157,7 +3157,11 @@ const Gfx dl_ia8_up_arrow_end[] = {
 // 0x02014970 - 0x020149A8
 const Gfx dl_paintings_rippling_begin[] = {
     gsDPPipeSync(),
+#ifdef F3DEX_GBI_3
+    gsSPSetGeometryMode(G_LIGHTING | G_LIGHTING_SPECULAR | G_SHADING_SMOOTH),
+#else
     gsSPSetGeometryMode(G_LIGHTING | G_SHADING_SMOOTH),
+#endif
     gsDPSetCombineMode(G_CC_MODULATERGBA, G_CC_MODULATERGBA),
     gsSPLightColor(LIGHT_1, 0xffffffff),
     gsSPLightColor(LIGHT_2, 0x505050ff),
@@ -3167,6 +3171,9 @@ const Gfx dl_paintings_rippling_begin[] = {
 
 // 0x020149A8 - 0x020149C8
 const Gfx dl_paintings_rippling_end[] = {
+#ifdef F3DEX_GBI_3
+    gsSPClearGeometryMode(G_LIGHTING_SPECULAR),
+#endif
     gsSPTexture(0xFFFF, 0xFFFF, 0, G_TX_RENDERTILE, G_OFF),
     gsDPPipeSync(),
     gsDPSetCombineMode(G_CC_SHADE, G_CC_SHADE),

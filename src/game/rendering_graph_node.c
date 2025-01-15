@@ -760,7 +760,7 @@ void geo_process_background(struct GraphNodeBackground *node) {
     #endif
 #endif
         Gfx *gfx = gfxStart;
-#ifdef F3DEX_GBI_3 // F3DEX3: Use RSP accelerated memset for faster framebuffer clear.
+#if defined(F3DEX_GBI_3) && defined(F3DEX3_FB_MEMCLEAR)
         gSPMemset(gfx++, gPhysicalFramebuffers[sRenderingFramebuffer], node->background, SCREEN_WIDTH * SCREEN_HEIGHT * 2);
 #else
         gDPPipeSync(gfx++);

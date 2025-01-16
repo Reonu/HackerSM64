@@ -1845,8 +1845,8 @@ void gd_dl_lookat(struct ObjCamera *cam, f32 arg1, f32 arg2, f32 arg3, f32 arg4,
 #ifdef F3DEX_GBI_3
     cameraWorldPosPtr = gd_allocblock(sizeof(PlainVtx));
     cameraWorldPosPtr->c.pos[0] = (s16)cam->worldPos.x;
-    cameraWorldPosPtr->c.pos[0] = (s16)cam->worldPos.y;
-    cameraWorldPosPtr->c.pos[0] = (s16)cam->worldPos.z;
+    cameraWorldPosPtr->c.pos[1] = (s16)cam->worldPos.y;
+    cameraWorldPosPtr->c.pos[2] = (s16)cam->worldPos.z;
     gSPCameraWorld(next_gfx(), cameraWorldPosPtr);
 #endif
     /*  col           colc          dir

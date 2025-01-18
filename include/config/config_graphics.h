@@ -154,6 +154,12 @@
 // #define USE_FRUSTRATIO2
 
 /**
+ * Disables instant input.
+ * Mostly used for debugging purposes, or for future-proofing a release if concerned.
+ */
+//#define DISABLE_INSTANT_INPUT
+
+/**
  * Primary graphics microcode selection
  * Define F3DEX_VERSION as one of the following to select the primary graphics microcode:
  * 1 - F3DEX   - Worse console performance for improved Z-buffer precision.
@@ -162,12 +168,23 @@
  * 4 - F3DEX3 LVP (legacy vertex pipeline) - F3DEX3 with legacy vertex pipeline.
  *                                           Lowers RSP processing time at the cost of new features.
  *                                           Read F3DEX3 README for more information.
+ * All microcodes provided by HackerSM64 use the "NoN" (no near-field clipping) variants.
+ * A built-in profiler is available for F3DEX3 and can be enabled inside config/config_debug.h
+ * under DEBUG_F3DEX3_PROFILER.
  */
 
 #define F3DEX_VERSION 2
 
 /**
  * Enables usage of the line microcode. It can be loaded with gSPLoadUcode within a display list.
+ * This feature is not available for use with F3DEX3.
  */
 
 // #define ENABLE_LINE_UCODE
+
+/**
+ * Enables RSP MemSet for FB clear.
+ * Might have issues.
+ */
+
+//#define F3DEX3_FB_MEMCLEAR

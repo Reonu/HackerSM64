@@ -1,5 +1,7 @@
 #include <ultra64.h>
 
+#include "PR/gbi.h"
+#include "config/config_rom.h"
 #include "sm64.h"
 #include "gfx_dimensions.h"
 #include "audio/external.h"
@@ -22,6 +24,9 @@
 #ifdef SRAM
 #include "sram.h"
 #endif
+#ifdef F3DEX_GBI_3
+#include "f3dex3.h"
+#endif
 #include "puppyprint.h"
 #include "puppycam2.h"
 #include "debug_box.h"
@@ -30,7 +35,7 @@
 #include "emutest.h"
 
 // Emulators that the Instant Input patch should not be applied to
-#define INSTANT_INPUT_BLACKLIST (EMU_CONSOLE | EMU_WIIVC | EMU_ARES | EMU_SIMPLE64 | EMU_CEN64)
+#define INSTANT_INPUT_BLACKLIST (EMU_CONSOLE | EMU_WIIVC | EMU_ARES | EMU_SIMPLE64 | EMU_CEN64 | DISABLE_INSTANT_INPUT)
 
 // Gfx handlers
 struct SPTask *gGfxSPTask;
@@ -146,19 +151,24 @@ void init_z_buffer(s32 resetZB) {
     Gfx *tempGfxHead = gDisplayListHead;
 
     gDPPipeSync(tempGfxHead++);
-
     gDPSetDepthSource(tempGfxHead++, G_ZS_PIXEL);
     gDPSetDepthImage(tempGfxHead++, gPhysicalZBuffer);
 
-    gDPSetColorImage(tempGfxHead++, G_IM_FMT_RGBA, G_IM_SIZ_16b, SCREEN_WIDTH, gPhysicalZBuffer);
-    if (!resetZB)
+    if (!resetZB) {
         return;
+    }
+
+
+#if defined(F3DEX_GBI_3) && defined(F3DEX3_FB_MEMCLEAR)
+    gSPMemset(tempGfxHead++, gPhysicalZBuffer, GPACK_ZDZ(G_MAXFBZ, 0), SCREEN_WIDTH * SCREEN_HEIGHT * 2);
+#else
+    gDPSetColorImage(tempGfxHead++, G_IM_FMT_RGBA, G_IM_SIZ_16b, SCREEN_WIDTH, gPhysicalZBuffer);
     gDPSetFillColor(tempGfxHead++,
                     GPACK_ZDZ(G_MAXFBZ, 0) << 16 | GPACK_ZDZ(G_MAXFBZ, 0));
 
     gDPFillRectangle(tempGfxHead++, 0, gBorderHeight, SCREEN_WIDTH - 1,
                      SCREEN_HEIGHT - 1 - gBorderHeight);
-
+#endif
     gDisplayListHead = tempGfxHead;
 }
 
@@ -185,7 +195,9 @@ void select_framebuffer(void) {
  */
 void clear_framebuffer(s32 color) {
     Gfx *tempGfxHead = gDisplayListHead;
-
+#if defined(F3DEX_GBI_3) && defined(F3DEX3_FB_MEMCLEAR)
+    gSPMemset(tempGfxHead++, gPhysicalFramebuffers[sRenderingFramebuffer], color, SCREEN_WIDTH * SCREEN_HEIGHT * 2);
+#else
     gDPPipeSync(tempGfxHead++);
 
     gDPSetRenderMode(tempGfxHead++, G_RM_OPA_SURF, G_RM_OPA_SURF2);
@@ -201,6 +213,7 @@ void clear_framebuffer(s32 color) {
     gDPSetCycleType(tempGfxHead++, G_CYC_1CYCLE);
 
     gDisplayListHead = tempGfxHead;
+#endif
 }
 
 /**
@@ -287,11 +300,35 @@ void create_gfx_task_structure(void) {
     gGfxSPTask->task.t.flags = (OS_TASK_LOADABLE | OS_TASK_DP_WAIT);
 
 #if defined(F3DEX_GBI_3)
-    GRUCODE_TASK(F3DEX3);
+    #if F3DEX_VERSION == 3 // Standard F3DEX3
+        #if defined(DEBUG_F3DEX3_PROFILER)
+            switch (gF3DEX3ProfilerPage) {
+                case 4: GRUCODE_TASK(F3DEX3_BrW_PC); break;
+                case 3: GRUCODE_TASK(F3DEX3_BrW_PB); break;
+                case 2: GRUCODE_TASK(F3DEX3_BrW_PA); break;
+                default: case 1: GRUCODE_TASK(F3DEX3_BrW); break;
+            }
+        #else
+            GRUCODE_TASK(F3DEX3_BrW);
+        #endif
+    #elif F3DEX_VERSION == 4 // F3DEX3 LVP
+        #if defined(DEBUG_F3DEX3_PROFILER)
+            switch (gF3DEX3ProfilerPage) {
+                case 4: GRUCODE_TASK(F3DEX3_BrW_LVP_PC); break;
+                case 3: GRUCODE_TASK(F3DEX3_BrW_LVP_PB); break;
+                case 2: GRUCODE_TASK(F3DEX3_BrW_LVP_PA); break;
+                default: case 1: GRUCODE_TASK(F3DEX3_BrW_LVP); break;
+            }
+        #else
+            GRUCODE_TASK(F3DEX3_BrW_LVP);
+        #endif
+    #else
+        #error "Invalid F3DEX3 selection."
+    #endif
 #elif defined(F3DEX_GBI_2)
-    GRUCODE_TASK(F3DZEX2_NoN)
+    GRUCODE_TASK(F3DZEX2_NoN_fifo)
 #elif defined(F3DEX_GBI)
-    GRUCODE_TASK(F3DEX_NoN);
+    GRUCODE_TASK(F3DEX_NoN_fifo);
 #else
     #error "Invalid microcode selected."
 #endif
@@ -374,7 +411,7 @@ void render_init(void) {
     gDisplayListHead = gGfxPool->buffer;
     gGfxPoolEnd = (u8 *)(gGfxPool->buffer + GFX_POOL_SIZE);
     init_rcp(CLEAR_ZBUFFER);
-    clear_framebuffer(0);
+    clear_framebuffer(0x0001);
     end_master_display_list();
     exec_display_list(&gGfxPool->spTask);
 
@@ -766,6 +803,9 @@ void thread5_game_loop(UNUSED void *arg) {
         audio_game_loop_tick();
         select_gfx_pool();
         read_controller_inputs(THREAD_5_GAME_LOOP);
+#ifdef DEBUG_F3DEX3_PROFILER
+        query_f3dex3_profiler();
+#endif
         profiler_update(PROFILER_TIME_CONTROLLERS, 0);
         profiler_collision_reset();
         addr = level_script_execute(addr);

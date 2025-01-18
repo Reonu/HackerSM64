@@ -5,6 +5,7 @@
 #include "sm64.h"
 #include "gfx_dimensions.h"
 #include "behavior_data.h"
+#include "main.h"
 #include "game_init.h"
 #include "object_list_processor.h"
 #include "engine/surface_load.h"
@@ -26,6 +27,9 @@
 #include "debug_box.h"
 #include "engine/colors.h"
 #include "profiling.h"
+#ifdef F3DEX_GBI_3
+#include "f3dex3.h"
+#endif
 
 struct SpawnInfo gPlayerSpawnInfos[1];
 struct GraphNode *gGraphNodePointers[MODEL_ID_COUNT];
@@ -80,10 +84,17 @@ u8 sSpawnTypeFromWarpBhv[] = {
     MARIO_SPAWN_AIRBORNE_STAR_COLLECT, MARIO_SPAWN_AIRBORNE_DEATH,       MARIO_SPAWN_LAUNCH_STAR_COLLECT,   MARIO_SPAWN_LAUNCH_DEATH,
 };
 
+#ifdef F3DEX_GBI_3
+Vp gViewport = { {
+    { 640,-480, G_NEW_MAXZ / 2, 0 },
+    { 640, 480, G_NEW_MAXZ / 2, 0 },
+} };
+#else
 Vp gViewport = { {
     { 640, 480, 511, 0 },
     { 640, 480, 511, 0 },
 } };
+#endif
 
 LangArray gNoControllerMsg = DEFINE_LANGUAGE_ARRAY(
     "NO CONTROLLER",
@@ -377,6 +388,10 @@ void play_transition_after_delay(s16 transType, s16 time, u8 red, u8 green, u8 b
     play_transition(transType, time, red, green, blue);
 }
 
+/**
+ * Draws the F3DEX3 profiler.
+ */
+
 void render_game(void) {
     PROFILER_GET_SNAPSHOT_TYPE(PROFILER_DELTA_COLLISION);
     if (gCurrentArea != NULL && !gWarpTransition.pauseRendering) {
@@ -413,6 +428,10 @@ void render_game(void) {
         } else
             gDPSetScissor(gDisplayListHead++, G_SC_NON_INTERLACE, 0, gBorderHeight, SCREEN_WIDTH,
                           SCREEN_HEIGHT - gBorderHeight);
+        
+        #ifdef DEBUG_F3DEX3_PROFILER
+            draw_f3dex3_profiler();
+        #endif
 
         if (gWarpTransition.isActive) {
             if (gWarpTransDelay == 0) {

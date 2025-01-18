@@ -143,10 +143,9 @@ SECTIONS
 #ifdef LIBPL
       BUILD_DIR/lib/libpl*.o(.text*);
 #endif
-      */ULTRALIB.a:*.o(.text*);
+      *ULTRALIB.a:*.o(.text*);
       */libnustd.a:*.o(.text*);
-      */libgcc.a:*.o(.text*);
-      */librtc.a:*.o(.text*);
+      *libgcc.a:*.o(.text*);
       */libz.a:*.o(.text*);
       lib/rspboot.o(.text*);
 
@@ -200,7 +199,6 @@ SECTIONS
       BUILD_DIR/lib/libpl*.o(.*data*);
 #endif
       */ULTRALIB.a:*.o(.data*);
-      */librtc.a:*.o(.data*);
       */libz.a:*.o(.data*);
 
 // Primary grucode
@@ -250,9 +248,8 @@ SECTIONS
 #ifdef LIBPL
       BUILD_DIR/lib/libpl*.o(.rodata*);
 #endif
-      */ULTRALIB.a:*.o(.rodata*);
-      */libgcc.a:*.o(.rodata*);
-      */librtc.a:*.o(.rodata*);
+      *ULTRALIB.a:*.o(.rodata*);
+      *libgcc.a:*.o(.rodata*);
       */libz.a:*.o(.rodata*);
 
    }
@@ -265,10 +262,9 @@ SECTIONS
 #ifdef LIBPL
       BUILD_DIR/lib/libpl*.o(.*bss*);
 #endif
-      */ULTRALIB.a:*.o(COMMON);
-      */ULTRALIB.a:*.o(.scommon);
-      */ULTRALIB.a:*.o(.*bss*);
-      */librtc.a:*.o(.bss*);
+      *ULTRALIB.a:*.o(COMMON);
+      *ULTRALIB.a:*.o(.scommon);
+      *ULTRALIB.a:*.o(.*bss*);
       */libz.a:*.o(.bss*);
       . = ALIGN(0x8);
    }

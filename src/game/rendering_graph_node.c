@@ -162,7 +162,6 @@ ALIGNED16 struct GraphNodeCamera *gCurGraphNodeCamera = NULL;
 ALIGNED16 struct GraphNodeObject *gCurGraphNodeObject = NULL;
 ALIGNED16 struct GraphNodeHeldObject *gCurGraphNodeHeldObject = NULL;
 u16 gAreaUpdateCounter = 0;
-LookAt* gCurLookAt;
 
 #if SILHOUETTE
 // AA_EN        Enable anti aliasing (not actually used for AA in this case).
@@ -350,7 +349,6 @@ void geo_process_master_list_sub(struct GraphNodeMasterList *node) {
  * render modes of layers.
  */
 void geo_append_display_list(void *displayList, s32 layer) {
-    gSPLookAt(gDisplayListHead++, gCurLookAt);
 #if SILHOUETTE
     if (gCurGraphNodeObject != NULL) {
         if (gCurGraphNodeObject->node.flags & GRAPH_RENDER_SILHOUETTE) {
@@ -575,22 +573,18 @@ void geo_process_camera(struct GraphNodeCamera *node) {
 
     mtxf_lookat(gCameraTransform, node->pos, node->focus, node->roll);
 
-    // Calculate the lookAt
-    // @bug This is where the LookAt values should be calculated but aren't.
-    // As a result, environment mapping is broken on Fast3DEX2 without the
-    // changes below.
     Mat4* cameraMatrix = &gCameraTransform;
-    /**
-    * HackerSM64 2.1: Now uses the correct "up" vector for the guLookAtReflect call in geo_process_master_list_sub.
-    * It was originally sideways in vanilla, with vanilla's environment map textures sideways to accommodate, but those
-    * textures are now rotated automatically on extraction to allow for this to be fixed.
-    */
-    gCurLookAt->l[0].l.dir[0] = (s8)(127.0f * (*cameraMatrix)[0][0]);
-    gCurLookAt->l[0].l.dir[1] = (s8)(127.0f * (*cameraMatrix)[1][0]);
-    gCurLookAt->l[0].l.dir[2] = (s8)(127.0f * (*cameraMatrix)[2][0]);
-    gCurLookAt->l[1].l.dir[0] = (s8)(127.0f * -(*cameraMatrix)[0][1]);
-    gCurLookAt->l[1].l.dir[1] = (s8)(127.0f * -(*cameraMatrix)[1][1]);
-    gCurLookAt->l[1].l.dir[2] = (s8)(127.0f * -(*cameraMatrix)[2][1]);
+ 
+    LookAt *lookAt = (LookAt*)alloc_display_list(sizeof(LookAt));
+
+    lookAt->l[0].l.dir[0] = (s8)(127.0f * (*cameraMatrix)[0][0]);
+    lookAt->l[0].l.dir[1] = (s8)(127.0f * (*cameraMatrix)[1][0]);
+    lookAt->l[0].l.dir[2] = (s8)(127.0f * (*cameraMatrix)[2][0]);
+    lookAt->l[1].l.dir[0] = (s8)(127.0f * -(*cameraMatrix)[0][1]);
+    lookAt->l[1].l.dir[1] = (s8)(127.0f * -(*cameraMatrix)[1][1]);
+    lookAt->l[1].l.dir[2] = (s8)(127.0f * -(*cameraMatrix)[2][1]);
+
+    gSPLookAt(gDisplayListHead++, lookAt);
 
 #if WORLD_SCALE > 1
     // Make a copy of the view matrix and scale its translation based on WORLD_SCALE
@@ -1135,8 +1129,6 @@ void geo_process_held_object(struct GraphNodeHeldObject *node) {
     Vec3f translation;
     Mat4 tempMtx;
 
-    gSPLookAt(gDisplayListHead++, gCurLookAt);
-
     if (node->fnNode.func != NULL) {
         node->fnNode.func(GEO_CONTEXT_RENDER, &node->fnNode.node, gMatStack[gMatStackIndex]);
     }
@@ -1263,8 +1255,6 @@ void geo_process_root(struct GraphNodeRoot *node, Vp *b, Vp *c, s32 clearColor) 
 
         gDisplayListHeap = alloc_only_pool_init(main_pool_available() - sizeof(struct AllocOnlyPool), MEMORY_POOL_LEFT);
         initialMatrix = alloc_display_list(sizeof(*initialMatrix));
-        gCurLookAt = (LookAt*)alloc_display_list(sizeof(LookAt));
-        bzero(gCurLookAt, sizeof(LookAt));
 
         gMatStackIndex = 0;
         gCurrAnimType = ANIM_TYPE_NONE;

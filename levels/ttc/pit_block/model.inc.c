@@ -39,9 +39,15 @@ static const Gfx ttc_seg7_dl_07010F80[] = {
     gsDPLoadBlock(G_TX_LOADTILE, 0, 0, 32 * 32 - 1, CALC_DXT(32, G_IM_SIZ_16b_BYTES)),
     gsSPLightColor(LIGHT_1, 0xffffffff),
     gsSPLightColor(LIGHT_2, 0x7f7f7fff),
+#ifdef F3DEX_GBI_3
+    gsSPSetGeometryMode(G_LIGHTING_SPECULAR),
+#endif
     gsSPVertex(ttc_seg7_vertex_07010E00, 8, 0),
     gsSP2Triangles( 0,  1,  2, 0x0,  1,  3,  2, 0x0),
     gsSP2Triangles( 4,  5,  6, 0x0,  4,  7,  5, 0x0),
+#ifdef F3DEX_GBI_3
+    gsSPClearGeometryMode(G_LIGHTING_SPECULAR),
+#endif
     gsSPEndDisplayList(),
 };
 

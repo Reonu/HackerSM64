@@ -753,7 +753,7 @@ void geo_layout_cmd_node_culling_radius(void) {
 }
 
 /*
-  0x21: Create billboarding node with optional display list
+  0x21: Create cylindrical billboarding node with optional display list
    cmd+0x01: u8 params
      (params & 0x80): if set, enable displayList field and drawingLayer
      (params & 0x40): if set, use the direction from the camera to the node instead

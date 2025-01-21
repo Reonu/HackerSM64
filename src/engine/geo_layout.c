@@ -756,12 +756,12 @@ void geo_layout_cmd_node_culling_radius(void) {
   0x21: Create cylindrical billboarding node with optional display list
    cmd+0x01: u8 params
      (params & 0x80): if set, enable displayList field and drawingLayer
-     (params & 0x40): if set, use the direction from the camera to the node instead
      (params & 0x0F): drawingLayer
-   cmd+0x02: s16 xAxis
-   cmd+0x04: s16 yAxis
-   cmd+0x06: s16 zAxis
-  [cmd+0x08: void *displayList]
+   cmd+0x02: u8 useNodePos: if set, use the direction from the camera to the node instead
+   cmd+0x04: s16 xAxis
+   cmd+0x06: s16 yAxis
+   cmd+0x08: s16 zAxis
+  [cmd+0x0C: void *displayList]
 */
 void geo_layout_cmd_node_cylindrical_billboard(void) {
     struct GraphNodeCylindricalBillboard *graphNode;
@@ -771,7 +771,8 @@ void geo_layout_cmd_node_cylindrical_billboard(void) {
     s16 *cmdPos = (s16 *) gGeoLayoutCommand;
     void *displayList = NULL;
 
-    cmdPos = read_vec3s(axis, &cmdPos[1]);
+    cmdPos = read_vec3s(axis, &cmdPos[2]);
+    cmdPos += 1 << CMD_SIZE_SHIFT;
 
     if (params & 0x80) {
         displayList = *(void **) &cmdPos[0];
@@ -779,7 +780,7 @@ void geo_layout_cmd_node_cylindrical_billboard(void) {
         cmdPos += 2 << CMD_SIZE_SHIFT;
     }
 
-    graphNode = init_graph_node_cylindrical_billboard(gGraphNodePool, NULL, drawingLayer, displayList, axis, params & 0x40);
+    graphNode = init_graph_node_cylindrical_billboard(gGraphNodePool, NULL, drawingLayer, displayList, axis, cur_geo_cmd_u8(0x02));
 
     register_scene_graph_node(&graphNode->node);
 

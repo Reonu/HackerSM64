@@ -473,21 +473,25 @@ enum GeoLayoutCommands {
 /**
  * 0x21: Create cylindrical billboarding node, rotating to match the camera's
  * look direction.
- *   0x01: u8 params
+ *   0x01: u8 layer
  *      0b1000_0000: if set, enable displayList field and drawingLayer
- *      0b0100_0000: if set, use the direction from the camera to the node instead
  *      0b0000_1111: drawingLayer
- *   0x02: s16 xAxis
- *   0x04: s16 yAxis
- *   0x06: s16 zAxis
- *   0x08: [u32 displayList: if MSbit of params is set, display list segmented address]
+ *   0x02: u8 useNodePos: if set, use the direction from the camera to the node instead
+ *   0x03: unused
+ *   0x04: s16 xAxis
+ *   0x06: s16 yAxis
+ *   0x08: s16 zAxis
+ *   0x0A-0x0B: unused
+ *   0x0C: [u32 displayList: if MSbit of params is set, display list segmented address]
  */
-#define GEO_CYLINDRICAL_BILLBOARD_WITH_DL(layer, useNodePos, ax, ay, az, displayList) \
-    CMD_BBH(GEO_CMD_NODE_CYLINDRICAL_BILLBOARD, (0x80 | (useNodePos << 6) | layer), ax), \
-    CMD_HH(ay, az), \
-    CMD_PTR(displayList)
 #define GEO_CYLINDRICAL_BILLBOARD(useNodePos, ax, ay, az) \
-    CMD_BBH(GEO_CMD_NODE_CYLINDRICAL_BILLBOARD, (useNodePos << 6), ax), \
-    CMD_HH(ay, az)
+    CMD_BBBB(GEO_CMD_NODE_CYLINDRICAL_BILLBOARD, 0x00, useNodePos, 0x00), \
+    CMD_HH(ax, ay), \
+    CMD_HH(az, 0x0000)
+#define GEO_CYLINDRICAL_BILLBOARD_WITH_DL(layer, useNodePos, ax, ay, az, displayList) \
+    CMD_BBBB(GEO_CMD_NODE_CYLINDRICAL_BILLBOARD, (0x80 | layer), useNodePos, 0x00), \
+    CMD_HH(ax, ay), \
+    CMD_HH(az, 0x0000), \
+    CMD_PTR(displayList)
 
 #endif // GEO_COMMANDS_H

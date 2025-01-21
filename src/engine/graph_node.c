@@ -377,6 +377,29 @@ struct GraphNodeBillboard *init_graph_node_billboard(struct AllocOnlyPool *pool,
 }
 
 /**
+ * Allocates and returns a newly created cylindrical billboard node
+ */
+struct GraphNodeCylindricalBillboard *init_graph_node_cylindrical_billboard(struct AllocOnlyPool *pool,
+                                                                            struct GraphNodeCylindricalBillboard *graphNode,
+                                                                            s32 drawingLayer, void *displayList,
+                                                                            Vec3s axis,
+                                                                            u8 useNodePos) {
+    if (pool != NULL) {
+        graphNode = alloc_only_pool_alloc(pool, sizeof(struct GraphNodeCylindricalBillboard));
+    }
+
+    if (graphNode != NULL) {
+        init_scene_graph_node_links(&graphNode->node, GRAPH_NODE_TYPE_CYLINDRICAL_BILLBOARD);
+        vec3s_copy(graphNode->axis, axis);
+        SET_GRAPH_NODE_LAYER(graphNode->node.flags, drawingLayer);
+        graphNode->displayList = displayList;
+        graphNode->useNodePos = useNodePos;
+    }
+
+    return graphNode;
+}
+
+/**
  * Allocates and returns a newly created displaylist node
  */
 struct GraphNodeDisplayList *init_graph_node_display_list(struct AllocOnlyPool *pool,

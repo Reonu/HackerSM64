@@ -10,39 +10,40 @@
 typedef void (*GeoLayoutCommandProc)(void);
 
 GeoLayoutCommandProc GeoLayoutJumpTable[] = {
-    /*GEO_CMD_BRANCH_AND_LINK           */ geo_layout_cmd_branch_and_link,
-    /*GEO_CMD_END                       */ geo_layout_cmd_end,
-    /*GEO_CMD_BRANCH                    */ geo_layout_cmd_branch,
-    /*GEO_CMD_RETURN                    */ geo_layout_cmd_return,
-    /*GEO_CMD_OPEN_NODE                 */ geo_layout_cmd_open_node,
-    /*GEO_CMD_CLOSE_NODE                */ geo_layout_cmd_close_node,
-    /*GEO_CMD_ASSIGN_AS_VIEW            */ geo_layout_cmd_assign_as_view,
-    /*GEO_CMD_UPDATE_NODE_FLAGS         */ geo_layout_cmd_update_node_flags,
-    /*GEO_CMD_NODE_ROOT                 */ geo_layout_cmd_node_root,
-    /*GEO_CMD_NODE_ORTHO_PROJECTION     */ geo_layout_cmd_node_ortho_projection,
-    /*GEO_CMD_NODE_PERSPECTIVE          */ geo_layout_cmd_node_perspective,
-    /*GEO_CMD_NODE_START                */ geo_layout_cmd_node_start,
-    /*GEO_CMD_NODE_MASTER_LIST          */ geo_layout_cmd_node_master_list,
-    /*GEO_CMD_NODE_LEVEL_OF_DETAIL      */ geo_layout_cmd_node_level_of_detail,
-    /*GEO_CMD_NODE_SWITCH_CASE          */ geo_layout_cmd_node_switch_case,
-    /*GEO_CMD_NODE_CAMERA               */ geo_layout_cmd_node_camera,
-    /*GEO_CMD_NODE_TRANSLATION_ROTATION */ geo_layout_cmd_node_translation_rotation,
-    /*GEO_CMD_NODE_TRANSLATION          */ geo_layout_cmd_node_translation,
-    /*GEO_CMD_NODE_ROTATION             */ geo_layout_cmd_node_rotation,
-    /*GEO_CMD_NODE_ANIMATED_PART        */ geo_layout_cmd_node_animated_part,
-    /*GEO_CMD_NODE_BILLBOARD            */ geo_layout_cmd_node_billboard,
-    /*GEO_CMD_NODE_DISPLAY_LIST         */ geo_layout_cmd_node_display_list,
-    /*GEO_CMD_NODE_SHADOW               */ geo_layout_cmd_node_shadow,
-    /*GEO_CMD_NODE_OBJECT_PARENT        */ geo_layout_cmd_node_object_parent,
-    /*GEO_CMD_NODE_GENERATED            */ geo_layout_cmd_node_generated,
-    /*GEO_CMD_NODE_BACKGROUND           */ geo_layout_cmd_node_background,
-    /*GEO_CMD_NOP_1A                    */ geo_layout_cmd_nop,
-    /*GEO_CMD_COPY_VIEW                 */ geo_layout_cmd_copy_view,
-    /*GEO_CMD_NODE_HELD_OBJ             */ geo_layout_cmd_node_held_obj,
-    /*GEO_CMD_NODE_SCALE                */ geo_layout_cmd_node_scale,
-    /*GEO_CMD_NOP_1E                    */ geo_layout_cmd_nop2,
-    /*GEO_CMD_NOP_1F                    */ geo_layout_cmd_nop3,
-    /*GEO_CMD_NODE_CULLING_RADIUS       */ geo_layout_cmd_node_culling_radius,
+    /* GEO_CMD_BRANCH_AND_LINK            */ geo_layout_cmd_branch_and_link,
+    /* GEO_CMD_END                        */ geo_layout_cmd_end,
+    /* GEO_CMD_BRANCH                     */ geo_layout_cmd_branch,
+    /* GEO_CMD_RETURN                     */ geo_layout_cmd_return,
+    /* GEO_CMD_OPEN_NODE                  */ geo_layout_cmd_open_node,
+    /* GEO_CMD_CLOSE_NODE                 */ geo_layout_cmd_close_node,
+    /* GEO_CMD_ASSIGN_AS_VIEW             */ geo_layout_cmd_assign_as_view,
+    /* GEO_CMD_UPDATE_NODE_FLAGS          */ geo_layout_cmd_update_node_flags,
+    /* GEO_CMD_NODE_ROOT                  */ geo_layout_cmd_node_root,
+    /* GEO_CMD_NODE_ORTHO_PROJECTION      */ geo_layout_cmd_node_ortho_projection,
+    /* GEO_CMD_NODE_PERSPECTIVE           */ geo_layout_cmd_node_perspective,
+    /* GEO_CMD_NODE_START                 */ geo_layout_cmd_node_start,
+    /* GEO_CMD_NODE_MASTER_LIST           */ geo_layout_cmd_node_master_list,
+    /* GEO_CMD_NODE_LEVEL_OF_DETAIL       */ geo_layout_cmd_node_level_of_detail,
+    /* GEO_CMD_NODE_SWITCH_CASE           */ geo_layout_cmd_node_switch_case,
+    /* GEO_CMD_NODE_CAMERA                */ geo_layout_cmd_node_camera,
+    /* GEO_CMD_NODE_TRANSLATION_ROTATION  */ geo_layout_cmd_node_translation_rotation,
+    /* GEO_CMD_NODE_TRANSLATION           */ geo_layout_cmd_node_translation,
+    /* GEO_CMD_NODE_ROTATION              */ geo_layout_cmd_node_rotation,
+    /* GEO_CMD_NODE_ANIMATED_PART         */ geo_layout_cmd_node_animated_part,
+    /* GEO_CMD_NODE_BILLBOARD             */ geo_layout_cmd_node_billboard,
+    /* GEO_CMD_NODE_DISPLAY_LIST          */ geo_layout_cmd_node_display_list,
+    /* GEO_CMD_NODE_SHADOW                */ geo_layout_cmd_node_shadow,
+    /* GEO_CMD_NODE_OBJECT_PARENT         */ geo_layout_cmd_node_object_parent,
+    /* GEO_CMD_NODE_GENERATED             */ geo_layout_cmd_node_generated,
+    /* GEO_CMD_NODE_BACKGROUND            */ geo_layout_cmd_node_background,
+    /* GEO_CMD_NOP_1A                     */ geo_layout_cmd_nop,
+    /* GEO_CMD_COPY_VIEW                  */ geo_layout_cmd_copy_view,
+    /* GEO_CMD_NODE_HELD_OBJ              */ geo_layout_cmd_node_held_obj,
+    /* GEO_CMD_NODE_SCALE                 */ geo_layout_cmd_node_scale,
+    /* GEO_CMD_NOP_1E                     */ geo_layout_cmd_nop2,
+    /* GEO_CMD_NOP_1F                     */ geo_layout_cmd_nop3,
+    /* GEO_CMD_NODE_CULLING_RADIUS        */ geo_layout_cmd_node_culling_radius,
+    /* GEO_CMD_NODE_CYLINDRICAL_BILLBOARD */ geo_layout_cmd_node_cylindrical_billboard,
 };
 
 struct GraphNode gObjParentGraphNode;
@@ -749,6 +750,40 @@ void geo_layout_cmd_node_culling_radius(void) {
     struct GraphNodeCullingRadius *graphNode = init_graph_node_culling_radius(gGraphNodePool, NULL, cur_geo_cmd_s16(0x02));
     register_scene_graph_node(&graphNode->node);
     gGeoLayoutCommand += 0x04 << CMD_SIZE_SHIFT;
+}
+
+/*
+  0x21: Create billboarding node with optional display list
+   cmd+0x01: u8 params
+     (params & 0x80): if set, enable displayList field and drawingLayer
+     (params & 0x40): if set, use the direction from the camera to the node instead
+     (params & 0x0F): drawingLayer
+   cmd+0x02: s16 xAxis
+   cmd+0x04: s16 yAxis
+   cmd+0x06: s16 zAxis
+  [cmd+0x08: void *displayList]
+*/
+void geo_layout_cmd_node_cylindrical_billboard(void) {
+    struct GraphNodeCylindricalBillboard *graphNode;
+    Vec3s axis;
+    s16 drawingLayer = LAYER_FIRST;
+    s16 params = cur_geo_cmd_u8(0x01);
+    s16 *cmdPos = (s16 *) gGeoLayoutCommand;
+    void *displayList = NULL;
+
+    cmdPos = read_vec3s(axis, &cmdPos[1]);
+
+    if (params & 0x80) {
+        displayList = *(void **) &cmdPos[0];
+        drawingLayer = params & 0x0F;
+        cmdPos += 2 << CMD_SIZE_SHIFT;
+    }
+
+    graphNode = init_graph_node_cylindrical_billboard(gGraphNodePool, NULL, drawingLayer, displayList, axis, params & 0x40);
+
+    register_scene_graph_node(&graphNode->node);
+
+    gGeoLayoutCommand = (u8 *) cmdPos;
 }
 
 struct GraphNode *process_geo_layout(struct AllocOnlyPool *pool, void *segptr) {

@@ -21,8 +21,13 @@
 #include "color_presets.h"
 #include "emutest.h"
 
+#ifdef F3DEX3_LIGHTING_ENGINE
+#include "f3dex3.h"
+#endif
+
 #include "config.h"
 #include "config/config_world.h"
+#include "types.h"
 
 /**
  * This file contains the code that processes the scene graph for rendering.
@@ -555,6 +560,10 @@ void setup_global_light() {
 #endif
 
     gSPSetLights1(gDisplayListHead++, (*curLight));
+
+#ifdef F3DEX3_LIGHTING_ENGINE
+    setup_lighting_engine();
+#endif
 }
 
 /**
@@ -744,19 +753,12 @@ void geo_process_background(struct GraphNodeBackground *node) {
     if (list != NULL) {
         geo_append_display_list((void *) VIRTUAL_TO_PHYSICAL(list), GET_GRAPH_NODE_LAYER(node->fnNode.node.flags));
     } else if (gCurGraphNodeMasterList != NULL) {
-#ifdef F3DEX_GBI_3
-        Gfx *gfxStart = alloc_display_list(sizeof(Gfx) * 2);
-#else
-    #ifndef F3DEX_GBI_2E
+#ifndef F3DEX_GBI_2E
         Gfx *gfxStart = alloc_display_list(sizeof(Gfx) * 7);
-    #else
+#else
         Gfx *gfxStart = alloc_display_list(sizeof(Gfx) * 8);
-    #endif
 #endif
         Gfx *gfx = gfxStart;
-#if defined(F3DEX_GBI_3) && defined(F3DEX3_FB_MEMCLEAR)
-        gSPMemset(gfx++, gPhysicalFramebuffers[sRenderingFramebuffer], node->background, SCREEN_WIDTH * SCREEN_HEIGHT * 2);
-#else
         gDPPipeSync(gfx++);
         gDPSetCycleType(gfx++, G_CYC_FILL);
         gDPSetFillColor(gfx++, node->background);
@@ -764,7 +766,6 @@ void geo_process_background(struct GraphNodeBackground *node) {
         GFX_DIMENSIONS_RECT_FROM_RIGHT_EDGE(0) - 1, SCREEN_HEIGHT - gBorderHeight - 1);
         gDPPipeSync(gfx++);
         gDPSetCycleType(gfx++, G_CYC_1CYCLE);
-#endif
         gSPEndDisplayList(gfx++);
 
         geo_append_display_list((void *) VIRTUAL_TO_PHYSICAL(gfxStart), LAYER_FORCE);
@@ -1271,6 +1272,9 @@ void geo_process_root(struct GraphNodeRoot *node, Vp *b, Vp *c, s32 clearColor) 
             clear_framebuffer(clearColor);
             make_viewport_clip_rect(b);
             *viewport = *b;
+#ifdef F3DEX_GBI_3
+            viewport->vp.vscale[1] *= -1;
+#endif
         }
 
         else if (c != NULL) {

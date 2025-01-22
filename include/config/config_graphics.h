@@ -25,7 +25,7 @@
 /**
  * Spawns floombas on the title screen.
  */
-#define INTRO_FLOOMBAS
+//#define INTRO_FLOOMBAS
 
 /**
  * Enables widescreen (16:9) support.
@@ -157,12 +157,11 @@
  * Disables instant input.
  * Mostly used for debugging purposes, or for future-proofing a release if concerned.
  */
-//#define DISABLE_INSTANT_INPUT
+//  #define DISABLE_INSTANT_INPUT
 
 /**
  * Primary graphics microcode selection
  * Define F3DEX_VERSION as one of the following to select the primary graphics microcode:
- * 1 - F3DEX   - Worse console performance for improved Z-buffer precision.
  * 2 - F3DZEX2 - (Majora's Mask version). HLE emulator compatible, good console performance.
  * 3 - F3DEX3  - Created by Sauraen. Better console performance in most situations. 
  * 4 - F3DEX3 LVP (legacy vertex pipeline) - F3DEX3 with legacy vertex pipeline.
@@ -183,8 +182,11 @@
 // #define ENABLE_LINE_UCODE
 
 /**
- * Enables RSP MemSet for FB clear.
- * Might have issues.
+ * Enables F3DEX3 point lighting engine.
+ * Replaces the lighting engine branch.
+ * See README.md and src/game/f3dex3.c for more details.
+ * NOTE: Game looks visually identical if not setup.
  */
 
-//#define F3DEX3_FB_MEMCLEAR
+#define F3DEX3_LIGHTING_ENGINE
+

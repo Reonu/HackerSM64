@@ -53,10 +53,15 @@
  * config_graphics.h
  */
 
+#ifdef DISABLE_INSTANT_INPUT
+    #undef DISABLE_INSTANT_INPUT
+    #define DISABLE_INSTANT_INPUT 0xFFFFFFFF
+#else
+    #define DISABLE_INSTANT_INPUT 0
+#endif
+
 #ifdef F3DEX_VERSION
-    #if F3DEX_VERSION == 1
-        #define F3DEX_GBI
-    #elif F3DEX_VERSION == 2
+    #if F3DEX_VERSION == 2
         #define F3DEX_GBI_2
     #elif F3DEX_VERSION == 3 || F3DEX_VERSION == 4
         #define F3DEX_GBI_3
@@ -73,6 +78,14 @@
         #warning "F3DEX3 does not support ENABLE_LINE_UCODE, so it will be disabled."
     #endif
 #endif
+
+#if !defined(F3DEX_GBI_3) && defined(F3DEX3_LIGHTING_ENGINE)
+    #undef F3DEX3_LIGHTING_ENGINE
+#endif // F3DEX3_LIGHTING_ENGINE
+
+#if !defined(F3DEX_GBI_3) && defined(F3DEX3_FB_MEMCLEAR)
+    #undef F3DEX3_FB_MEMCLEAR
+#endif // F3DEX3_FB_MEMCLEAR
 
 /*****************
  * config_debug.h
@@ -240,9 +253,3 @@
     #define BORDER_HEIGHT_EMULATOR 0
 #endif // !TARGET_N64
 
-#ifdef DISABLE_INSTANT_INPUT
-    #undef DISABLE_INSTANT_INPUT
-    #define DISABLE_INSTANT_INPUT 0xFFFFFFFF
-#else
-    #define DISABLE_INSTANT_INPUT 0
-#endif

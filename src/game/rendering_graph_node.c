@@ -624,6 +624,44 @@ void set_ambient_light(u8 r, u8 g, u8 b) {
     sGlobalAmbientLight->l.colc[2] = b;
 }
 
+static f32 calculate_distance_from_mario(s16 x, s16 y, s16 z) {
+    if (gMarioState->marioObj == NULL) { // No distance calc on Mario-less levels
+        return 0.0f;
+    }
+
+    register f32 distX = ABS(gMarioState->pos[0] - (f32)x);
+    register f32 distY = ABS(gMarioState->pos[1] - (f32)y);
+    register f32 distZ = ABS(gMarioState->pos[2] - (f32)z);
+
+    return sqr(distX + distY + distZ);
+}
+
+static void sort_linked_lights(LinkedLight **head) { // We can only load up to 9 point lights at a time, so we load the closest ones to Mario (or in a scene without Mario, the first x amount created)
+    if (*head == NULL) return;
+
+    LinkedLight *sorted = NULL;
+    LinkedLight *current = *head;
+
+    while (current != NULL) {
+        LinkedLight *next = current->next;
+        if (sorted == NULL || current->always == 1 || calculate_distance_from_mario(current->pos[0], current->pos[1], current->pos[2]) < calculate_distance_from_mario(sorted->pos[0], sorted->pos[1], sorted->pos[2])) {
+            current->next = sorted;
+            sorted = current;
+        } else {
+            LinkedLight *temp = sorted;
+            LinkedLight *tempNext = sorted->next;
+            while (temp->next != NULL && calculate_distance_from_mario(tempNext->pos[0], tempNext->pos[1], tempNext->pos[2]) < calculate_distance_from_mario(current->pos[0], current->pos[1], current->pos[2])) {
+                temp = temp->next;
+            }
+            current->next = temp->next;
+            temp->next = current;
+        }
+        current = next;
+    }
+
+    *head = sorted;
+}
+
 static void setup_lighting_engine() {
     u8 lightNum = gLightNumBase;
     Light *l;
@@ -665,6 +703,7 @@ static void setup_lighting_engine() {
 
     }
 
+    sort_linked_lights(&sLinkedLightHead);
     LinkedLight *cPoint = sLinkedLightHead;
 
     while (cPoint != NULL) {
@@ -694,7 +733,10 @@ static void setup_lighting_engine() {
 
         //sprintf(buf, "P %u R %u G %u B %u C %u L %u Q %u", lightNum, cPoint->col[0], cPoint->col[1], cPoint->col[2], cPoint->kc, cPoint->kl, cPoint->kq);
         //print_text(0, 0 + (16 * lightNum), buf);
-
+        //sprintf(buf, "P %d %d %d", cPoint->pos[0], cPoint->pos[1], cPoint->pos[2]);
+        //print_text(64, 48, buf);
+        //sprintf(buf, "M %d %d %d", (s16)gMarioState->pos[0], (s16)gMarioState->pos[1], (s16)gMarioState->pos[2]);
+        //print_text(64, 64, buf);
         cPoint = cPoint->next;
 
         gSPLight(gDisplayListHead++, &l->p, lightNum);

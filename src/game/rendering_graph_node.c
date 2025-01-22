@@ -668,10 +668,11 @@ static void setup_lighting_engine() {
 
     LinkedDirectionalLight *cDir = sLinkedDirectionalLightHead;
 
-//    char buf[64];
+    //char buf[64];
 
     while (cDir != NULL) {
-        if (lightNum > NUMLIGHTS_MAX) { // quit processing at 9 active lights
+        if (lightNum >= NUMLIGHTS_MAX) { // quit processing at 9 active lights
+            lightNum = LIGHT_10;
             break;
         }
 
@@ -704,10 +705,12 @@ static void setup_lighting_engine() {
     }
 
     sort_linked_lights(&sLinkedLightHead);
+
     LinkedLight *cPoint = sLinkedLightHead;
 
     while (cPoint != NULL) {
-        if (lightNum > NUMLIGHTS_MAX) { // quit processing at 9 active lights
+        if (lightNum >= NUMLIGHTS_MAX) { // quit processing at 9 active lights
+            lightNum = LIGHT_10;
             break;
         }
 

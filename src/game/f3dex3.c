@@ -271,9 +271,6 @@ void setup_lighting_engine() {
 
         l->l.size = cDir->size;
 
-        //sprintf(buf, "D %u R %u G %u B %u X %d Y %d Z %d", lightNum, cDir->col[0], cDir->col[1], cDir->col[2], cDir->dir[0], cDir->dir[1], cDir->dir[2]);
-        //print_text(0, 0 + (16 * lightNum), buf);
-
         cDir = cDir->next;
 
         gSPLight(gDisplayListHead++, &l->l, lightNum);
@@ -307,12 +304,6 @@ void setup_lighting_engine() {
 
         l->p.size = cPoint->size;
 
-        //sprintf(buf, "P %u R %u G %u B %u C %u L %u Q %u", lightNum, cPoint->col[0], cPoint->col[1], cPoint->col[2], cPoint->kc, cPoint->kl, cPoint->kq);
-        //print_text(0, 0 + (16 * lightNum), buf);
-        //sprintf(buf, "P %d %d %d", cPoint->pos[0], cPoint->pos[1], cPoint->pos[2]);
-        //print_text(64, 48, buf);
-        //sprintf(buf, "M %d %d %d", (s16)gMarioState->pos[0], (s16)gMarioState->pos[1], (s16)gMarioState->pos[2]);
-        //print_text(64, 64, buf);
         cPoint = cPoint->next;
 
         gSPLight(gDisplayListHead++, &l->p, lightNum);
@@ -321,8 +312,6 @@ void setup_lighting_engine() {
     }
 
     if (sGlobalAmbientLight != NULL) {
-        //sprintf(buf, "A %u R %u G %u B %u", lightNum, sGlobalAmbientLight->l.col[0], sGlobalAmbientLight->l.col[1], sGlobalAmbientLight->l.col[2]);
-        //print_text(0, 0 + (16 * lightNum), buf);
         gSPAmbient(gDisplayListHead++, sGlobalAmbientLight, lightNum);
         gSPNumLights(gDisplayListHead, lightNum);
     } else if (sGlobalAmbientLight == NULL && lightNum != gLightNumBase) { // We do not have an ambient light, so create one.

@@ -253,6 +253,10 @@ void setup_lighting_engine() {
     u8 lightNum = gLightNumBase;
     Light *l;
 
+    if (sLinkedDirectionalLightHead == NULL && sLinkedLightHead == NULL && sGlobalAmbientLight == NULL) {
+        return;
+    }
+
     LinkedDirectionalLight *cDir = sLinkedDirectionalLightHead;
 
     while (cDir != NULL) {

@@ -23,6 +23,7 @@
 
 #include "config.h"
 #include "config/config_world.h"
+#include "types.h"
 
 /**
  * This file contains the code that processes the scene graph for rendering.
@@ -526,6 +527,198 @@ void geo_process_switch(struct GraphNodeSwitchCase *node) {
     }
 }
 
+#ifdef F3DEX3_LIGHTING_ENGINE
+typedef struct {
+    u8 kc;
+    u8 kq;
+    u8 kl;
+    s16 pos[3];
+    u8 col[3];
+    u8 size;
+    u8 always;
+    void *next;
+} LinkedLight;
+
+typedef struct {
+    u8 col[3];
+    s8 dir[3];
+    u8 size;
+    void *next;
+} LinkedDirectionalLight;
+
+#define NUMLIGHTS_MAX NUMLIGHTS_9
+
+static LinkedLight *sLinkedLightHead = NULL;
+static LinkedDirectionalLight *sLinkedDirectionalLightHead = NULL;
+static Ambient *sGlobalAmbientLight = NULL;
+
+u8 gLightNumBase = NUMLIGHTS_3; // Start from this slot when adding dynamic lights.
+
+void add_point_light(s16 x, s16 y, s16 z, u8 r, u8 g, u8 b, u8 kc, u8 kq, u8 kl, u8 size, u8 always) {
+    LinkedLight *light = alloc_display_list(sizeof(LinkedLight));
+    LinkedLight *nextLight = sLinkedLightHead;
+    light->pos[0] = x;
+    light->pos[1] = y;
+    light->pos[2] = z;
+
+    light->kc = kc;
+    light->kq = kq;
+    light->kl = kl;
+
+    light->col[0] = r;
+    light->col[1] = g;
+    light->col[2] = b;
+
+    light->size = size;
+
+    light->always = always;
+    light->next = NULL;
+
+    if (sLinkedLightHead == NULL) {
+        sLinkedLightHead = light;
+    } else {
+        while (nextLight->next != NULL) {
+            nextLight = nextLight->next;
+        }
+        nextLight->next = light;
+    }
+}
+
+void add_directional_light(u8 r, u8 g, u8 b, s8 x, s8 y, s8 z, u8 size) {
+    LinkedDirectionalLight *light = alloc_display_list(sizeof(LinkedDirectionalLight));
+    LinkedDirectionalLight *nextLight = sLinkedDirectionalLightHead;
+
+    light->col[0] = r;
+    light->col[1] = g;
+    light->col[2] = b;
+
+    light->dir[0] = x;
+    light->dir[1] = y;
+    light->dir[2] = z;
+
+    light->size = size;
+    light->next = NULL;
+
+    if (sLinkedDirectionalLightHead == NULL) {
+        sLinkedDirectionalLightHead = light;
+    } else {
+        while (nextLight->next != NULL) {
+            nextLight = nextLight->next;
+        }
+        nextLight->next = light;
+    }
+}
+
+void set_ambient_light(u8 r, u8 g, u8 b) {
+    if (sGlobalAmbientLight == NULL) {
+        sGlobalAmbientLight = alloc_display_list(sizeof(Ambient));
+    }
+
+    sGlobalAmbientLight->l.col[0] = r;
+    sGlobalAmbientLight->l.colc[0] = r;
+
+    sGlobalAmbientLight->l.col[1] = g;
+    sGlobalAmbientLight->l.colc[1] = g;
+
+    sGlobalAmbientLight->l.col[2] = b;
+    sGlobalAmbientLight->l.colc[2] = b;
+}
+
+static void setup_lighting_engine() {
+    u8 lightNum = gLightNumBase;
+    Light *l;
+
+    LinkedDirectionalLight *cDir = sLinkedDirectionalLightHead;
+
+//    char buf[64];
+
+    while (cDir != NULL) {
+        if (lightNum > NUMLIGHTS_MAX) { // quit processing at 9 active lights
+            break;
+        }
+
+        l = alloc_display_list(sizeof(Light));
+        l->l.col[0] = cDir->col[0];
+        l->l.col[1] = cDir->col[1];
+        l->l.col[2] = cDir->col[2];
+
+        l->l.colc[0] = cDir->col[0];
+        l->l.colc[1] = cDir->col[1];
+        l->l.colc[2] = cDir->col[2];
+
+        l->l.dir[0] = cDir->dir[0];
+        l->l.dir[1] = cDir->dir[1];
+        l->l.dir[2] = cDir->dir[2];
+
+        l->l.type = 0;
+
+        l->l.size = cDir->size;
+
+        //sprintf(buf, "D %u R %u G %u B %u X %d Y %d Z %d", lightNum, cDir->col[0], cDir->col[1], cDir->col[2], cDir->dir[0], cDir->dir[1], cDir->dir[2]);
+        //print_text(0, 0 + (16 * lightNum), buf);
+
+        cDir = cDir->next;
+
+        gSPLight(gDisplayListHead++, &l->l, lightNum);
+        lightNum++;
+        gSPNumLights(gDisplayListHead++, lightNum);
+
+    }
+
+    LinkedLight *cPoint = sLinkedLightHead;
+
+    while (cPoint != NULL) {
+        if (lightNum > NUMLIGHTS_MAX) { // quit processing at 9 active lights
+            break;
+        }
+
+        l = alloc_display_list(sizeof(Light));
+
+        l->p.col[0] = cPoint->col[0];
+        l->p.col[1] = cPoint->col[1];
+        l->p.col[2] = cPoint->col[2];
+
+        l->p.colc[0] = cPoint->col[0];
+        l->p.colc[1] = cPoint->col[1];
+        l->p.colc[2] = cPoint->col[2];
+
+        l->p.kc = cPoint->kc;
+        l->p.kl = cPoint->kl;
+        l->p.kq = cPoint->kq;
+
+        l->p.pos[0] = cPoint->pos[0] / WORLD_SCALE;
+        l->p.pos[1] = cPoint->pos[1] / WORLD_SCALE;
+        l->p.pos[2] = cPoint->pos[2] / WORLD_SCALE;
+
+        l->p.size = cPoint->size;
+
+        //sprintf(buf, "P %u R %u G %u B %u C %u L %u Q %u", lightNum, cPoint->col[0], cPoint->col[1], cPoint->col[2], cPoint->kc, cPoint->kl, cPoint->kq);
+        //print_text(0, 0 + (16 * lightNum), buf);
+
+        cPoint = cPoint->next;
+
+        gSPLight(gDisplayListHead++, &l->p, lightNum);
+        lightNum++;
+        gSPNumLights(gDisplayListHead++, lightNum);
+    }
+
+    if (sGlobalAmbientLight != NULL) {
+        //sprintf(buf, "A %u R %u G %u B %u", lightNum, sGlobalAmbientLight->l.col[0], sGlobalAmbientLight->l.col[1], sGlobalAmbientLight->l.col[2]);
+        //print_text(0, 0 + (16 * lightNum), buf);
+        gSPAmbient(gDisplayListHead++, sGlobalAmbientLight, lightNum);
+        gSPNumLights(gDisplayListHead, lightNum);
+    } else if (sGlobalAmbientLight == NULL && lightNum != gLightNumBase) { // We do not have an ambient light, so create one.
+        set_ambient_light(0, 0, 0);
+        gSPAmbient(gDisplayListHead++, sGlobalAmbientLight, lightNum);
+        gSPNumLights(gDisplayListHead, lightNum);
+    }
+
+    sGlobalAmbientLight = NULL;
+    sLinkedDirectionalLightHead = NULL;
+    sLinkedLightHead = NULL;
+}
+#endif
+
 Mat4 gCameraTransform;
 
 Lights1 defaultLight = gdSPDefLights1(
@@ -555,6 +748,10 @@ void setup_global_light() {
 #endif
 
     gSPSetLights1(gDisplayListHead++, (*curLight));
+
+#ifdef F3DEX3_LIGHTING_ENGINE
+    setup_lighting_engine();
+#endif
 }
 
 /**

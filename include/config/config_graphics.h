@@ -183,7 +183,7 @@
 // #define ENABLE_LINE_UCODE
 
 /**
- * Enables RSP MemSet for FB clear when using F3DEX3.
+ * Enables RSP memset for FB clear when using F3DEX3.
  */
 
 #define F3DEX3_FB_MEMCLEAR
@@ -195,3 +195,4 @@
  */
 
 // #define F3DEX3_LIGHTING_ENGINE
+

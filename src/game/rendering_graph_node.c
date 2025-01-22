@@ -753,19 +753,12 @@ void geo_process_background(struct GraphNodeBackground *node) {
     if (list != NULL) {
         geo_append_display_list((void *) VIRTUAL_TO_PHYSICAL(list), GET_GRAPH_NODE_LAYER(node->fnNode.node.flags));
     } else if (gCurGraphNodeMasterList != NULL) {
-#ifdef F3DEX_GBI_3
-        Gfx *gfxStart = alloc_display_list(sizeof(Gfx) * 2);
-#else
-    #ifndef F3DEX_GBI_2E
+#ifndef F3DEX_GBI_2E
         Gfx *gfxStart = alloc_display_list(sizeof(Gfx) * 7);
-    #else
+#else
         Gfx *gfxStart = alloc_display_list(sizeof(Gfx) * 8);
-    #endif
 #endif
         Gfx *gfx = gfxStart;
-#ifdef F3DEX3_FB_MEMCLEAR
-        gSPMemset(gfx++, gPhysicalFramebuffers[sRenderingFramebuffer], node->background, SCREEN_WIDTH * SCREEN_HEIGHT * 2);
-#else
         gDPPipeSync(gfx++);
         gDPSetCycleType(gfx++, G_CYC_FILL);
         gDPSetFillColor(gfx++, node->background);
@@ -773,7 +766,6 @@ void geo_process_background(struct GraphNodeBackground *node) {
         GFX_DIMENSIONS_RECT_FROM_RIGHT_EDGE(0) - 1, SCREEN_HEIGHT - gBorderHeight - 1);
         gDPPipeSync(gfx++);
         gDPSetCycleType(gfx++, G_CYC_1CYCLE);
-#endif
         gSPEndDisplayList(gfx++);
 
         geo_append_display_list((void *) VIRTUAL_TO_PHYSICAL(gfxStart), LAYER_FORCE);

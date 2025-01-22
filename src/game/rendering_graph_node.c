@@ -1272,6 +1272,9 @@ void geo_process_root(struct GraphNodeRoot *node, Vp *b, Vp *c, s32 clearColor) 
             clear_framebuffer(clearColor);
             make_viewport_clip_rect(b);
             *viewport = *b;
+#ifdef F3DEX_GBI_3
+            viewport->vp.vscale[1] *= -1;
+#endif
         }
 
         else if (c != NULL) {

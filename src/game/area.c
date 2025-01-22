@@ -103,6 +103,8 @@ LangArray gNoControllerMsg = DEFINE_LANGUAGE_ARRAY(
     "NO CONTROLLER",
     "NO HAY MANDO");
 
+// NOTE: With F3DEX_GBI_3, do NOT invert the Y scale for viewports which use this. It will be done for you.
+
 void override_viewport_and_clip(Vp *vpOverride, Vp *vpClip, Color red, Color green, Color blue) {
     RGBA16 color = ((red >> 3) << IDX_RGBA16_R) | ((green >> 3) << IDX_RGBA16_G) | ((blue >> 3) << IDX_RGBA16_B) | MSK_RGBA16_A;
 

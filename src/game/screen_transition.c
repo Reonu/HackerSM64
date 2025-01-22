@@ -184,7 +184,7 @@ s32 render_textured_transition(u8 transTime, struct WarpTransitionData *transDat
         gDisplayListHead = tempGfxHead;
     }
 
-#if defined(F3DEX_GBI_3) && defined(F3DEX3_FB_MEMCLEAR) // if anyone know why i have to do this please explain
+#ifdef F3DEX3_FB_MEMCLEAR // if anyone know why i have to do this please explain
     if (sTransitionFadeTimer + 1 >= transTime && transData->endTexRadius < transData->startTexRadius) {
         gSPMemset(gDisplayListHead++, gPhysicalFramebuffers[0], GPACK_RGBA5551(transData->red, transData->green, transData->blue, 1), SCREEN_WIDTH * SCREEN_HEIGHT * 2);
         gSPMemset(gDisplayListHead++, gPhysicalFramebuffers[1], GPACK_RGBA5551(transData->red, transData->green, transData->blue, 1), SCREEN_WIDTH * SCREEN_HEIGHT * 2);
@@ -252,7 +252,7 @@ s32 render_fade_transition_from_color(u8 transTime, struct WarpTransitionData *t
 s32 render_fade_transition_into_color(u8 transTime, struct WarpTransitionData *transData) {
     u8 alpha = set_transition_color_fade_alpha(COLOR_TRANS_FADE_INTO_COLOR, transTime);
 
-#if defined(F3DEX_GBI_3) && defined(F3DEX3_FB_MEMCLEAR) // if anyone know why i have to do this please explain (ditto)
+#ifdef F3DEX3_FB_MEMCLEAR // if anyone know why i have to do this please explain (ditto)
     if (alpha == 255) {
         gSPMemset(gDisplayListHead++, gPhysicalFramebuffers[0], GPACK_RGBA5551(transData->red, transData->green, transData->blue, 1), SCREEN_WIDTH * SCREEN_HEIGHT * 2);
         gSPMemset(gDisplayListHead++, gPhysicalFramebuffers[1], GPACK_RGBA5551(transData->red, transData->green, transData->blue, 1), SCREEN_WIDTH * SCREEN_HEIGHT * 2);

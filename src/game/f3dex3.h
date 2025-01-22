@@ -88,3 +88,14 @@ void extract_f3dex3_profiler_data();
 void query_f3dex3_profiler();
 void draw_f3dex3_profiler();
 #endif
+
+#ifdef F3DEX3_LIGHTING_ENGINE
+#define NUMLIGHTS_MAX NUMLIGHTS_9
+
+extern u8 gLightNumBase;
+
+void set_ambient_light(u8 r, u8 g, u8 b);
+void add_directional_light(u8 r, u8 g, u8 b, s8 x, s8 y, s8 z, u8 size);
+void add_point_light(s16 x, s16 y, s16 z, u8 r, u8 g, u8 b, u8 kc, u8 kq, u8 kl, u8 size, u8 always);
+void setup_lighting_engine();
+#endif

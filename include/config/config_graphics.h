@@ -25,7 +25,7 @@
 /**
  * Spawns floombas on the title screen.
  */
-#define INTRO_FLOOMBAS
+//#define INTRO_FLOOMBAS
 
 /**
  * Enables widescreen (16:9) support.
@@ -157,7 +157,7 @@
  * Disables instant input.
  * Mostly used for debugging purposes, or for future-proofing a release if concerned.
  */
-//#define DISABLE_INSTANT_INPUT
+// #define DISABLE_INSTANT_INPUT
 
 /**
  * Primary graphics microcode selection
@@ -183,8 +183,15 @@
 // #define ENABLE_LINE_UCODE
 
 /**
- * Enables RSP MemSet for FB clear.
- * Might have issues.
+ * Enables RSP MemSet for FB clear when using F3DEX3.
  */
 
-//#define F3DEX3_FB_MEMCLEAR
+#define F3DEX3_FB_MEMCLEAR
+
+/**
+ * Enables F3DEX3 point lighting engine.
+ * Replaces the lighting engine branch.
+ * See README.md and src/game/f3dex3.c for more details.
+ */
+
+// #define F3DEX3_LIGHTING_ENGINE

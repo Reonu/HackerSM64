@@ -205,13 +205,10 @@ void set_ambient_light(u8 r, u8 g, u8 b) {
     }
 
     sGlobalAmbientLight->l.col[0] = r;
-    sGlobalAmbientLight->l.colc[0] = r;
-
     sGlobalAmbientLight->l.col[1] = g;
-    sGlobalAmbientLight->l.colc[1] = g;
-
     sGlobalAmbientLight->l.col[2] = b;
-    sGlobalAmbientLight->l.colc[2] = b;
+
+    bcopy(&sGlobalAmbientLight->l.col[0], &sGlobalAmbientLight->l.colc[0], sizeof(u8) * 3);
 }
 
 static f32 calculate_distance_from_mario(s16 x, s16 y, s16 z) {
@@ -258,8 +255,6 @@ void setup_lighting_engine() {
 
     LinkedDirectionalLight *cDir = sLinkedDirectionalLightHead;
 
-    //char buf[64];
-
     while (cDir != NULL) {
         if (lightNum >= NUMLIGHTS_MAX) { // quit processing at 9 active lights
             lightNum = LIGHT_10;
@@ -267,17 +262,10 @@ void setup_lighting_engine() {
         }
 
         l = alloc_display_list(sizeof(Light));
-        l->l.col[0] = cDir->col[0];
-        l->l.col[1] = cDir->col[1];
-        l->l.col[2] = cDir->col[2];
 
-        l->l.colc[0] = cDir->col[0];
-        l->l.colc[1] = cDir->col[1];
-        l->l.colc[2] = cDir->col[2];
-
-        l->l.dir[0] = cDir->dir[0];
-        l->l.dir[1] = cDir->dir[1];
-        l->l.dir[2] = cDir->dir[2];
+        bcopy(&cDir->col[0], &l->l.col[0], sizeof(u8) * 3);
+        bcopy(&cDir->col[0], &l->l.colc[0], sizeof(u8) * 3);
+        bcopy(&cDir->dir[0], &l->l.dir[0], sizeof(s8) * 3);
 
         l->l.type = 0;
 
@@ -306,13 +294,8 @@ void setup_lighting_engine() {
 
         l = alloc_display_list(sizeof(Light));
 
-        l->p.col[0] = cPoint->col[0];
-        l->p.col[1] = cPoint->col[1];
-        l->p.col[2] = cPoint->col[2];
-
-        l->p.colc[0] = cPoint->col[0];
-        l->p.colc[1] = cPoint->col[1];
-        l->p.colc[2] = cPoint->col[2];
+        bcopy(&cPoint->col[0], &l->p.col[0], sizeof(u8) * 3);
+        bcopy(&cPoint->col[0], &l->p.colc[0], sizeof(u8) * 3);
 
         l->p.kc = cPoint->kc;
         l->p.kl = cPoint->kl;

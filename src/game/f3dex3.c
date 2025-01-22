@@ -142,7 +142,36 @@ static LinkedLight *sLinkedLightHead = NULL;
 static LinkedDirectionalLight *sLinkedDirectionalLightHead = NULL;
 static Ambient *sGlobalAmbientLight = NULL;
 
+/**
+  * Which light slot to start from.
+  *
+  * For compatibility with vanilla actors and levels, use NUMLIGHTS_3.
+  * If you plan to use the lighting engine similarly to the older one by wiseguy, use NUMLIGHTS_1.
+  */
+
 u8 gLightNumBase = NUMLIGHTS_3; // Start from this slot when adding dynamic lights.
+
+/**
+  * Create an F3DEX3 point light.
+  *
+  * NOTE: Point lights are added based on their distance to Mario, with the amount of available point lights being how many are free after directional lights are loaded.
+  * NOTE: Therefore, in a vanilla scene, the total amount of available point lights (with no global directional light) is 7.
+  *
+  * @x        X position of a light in worldspace.
+  * @y        Y position of a light in worldspace.
+  * @z        Z position of a light in worldspace.
+  *
+  * @r        Red color component.
+  * @g        Green color component.
+  * @b        Blue color component.
+  *
+  * @kc       Constant falloff.
+  * @kq       Quadratic falloff.
+  * @kl       Linear falloff.
+  *
+  * @size     Defines the light's size for when using F3DEX3 specular shading.
+  * @always   Treat this light as closest to Mario when sorting (i.e. loading on a "first come, first served" basis).
+  */
 
 void add_point_light(s16 x, s16 y, s16 z, u8 r, u8 g, u8 b, u8 kc, u8 kq, u8 kl, u8 size, u8 always) {
     LinkedLight *light = alloc_display_list(sizeof(LinkedLight));
@@ -174,6 +203,22 @@ void add_point_light(s16 x, s16 y, s16 z, u8 r, u8 g, u8 b, u8 kc, u8 kq, u8 kl,
     }
 }
 
+/**
+  * Create a standard directional light.
+  *
+  * NOTE: These are given priority over point lights. You probably want at most 1-2 of these in a scene.
+  *
+  * @r      Red color component.
+  * @b      Blue color component.
+  * @g      Green color component.
+  *
+  * @x      X direction vector.
+  * @y      Y direction vector.
+  * @z      Z direction vector.
+  *
+  * @size   Defines the light's size for when using F3DEX3 specular shading.
+  */
+
 void add_directional_light(u8 r, u8 g, u8 b, s8 x, s8 y, s8 z, u8 size) {
     LinkedDirectionalLight *light = alloc_display_list(sizeof(LinkedDirectionalLight));
     LinkedDirectionalLight *nextLight = sLinkedDirectionalLightHead;
@@ -198,6 +243,16 @@ void add_directional_light(u8 r, u8 g, u8 b, s8 x, s8 y, s8 z, u8 size) {
         nextLight->next = light;
     }
 }
+
+/**
+  * Create a global ambient light.
+  * NOTE: In the F3DEX3 microcode, ambient lights do not contribute towards the maximum amount of lights you can have.
+  * NOTE: If you do not set an ambient light and add lights to your scene, the lighting engine will add one with all colors set to 0.
+  *
+  * @r    Red color component.
+  * @g    Green color component.
+  * @b    Blue color component.
+  */
 
 void set_ambient_light(u8 r, u8 g, u8 b) {
     if (sGlobalAmbientLight == NULL) {
@@ -253,7 +308,7 @@ void setup_lighting_engine() {
     u8 lightNum = gLightNumBase;
     Light *l;
 
-    if (sLinkedDirectionalLightHead == NULL && sLinkedLightHead == NULL && sGlobalAmbientLight == NULL) {
+    if (sLinkedDirectionalLightHead == NULL && sLinkedLightHead == NULL && sGlobalAmbientLight == NULL) { // don't even bother
         return;
     }
 

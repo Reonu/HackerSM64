@@ -173,8 +173,6 @@ SECTIONS
    #endif
 #elif (defined(F3DEX_GBI_2))
       lib/PR/f3dzex2/gspF3DZEX2.NoN.fifo.o(.text*)
-#elif (defined(F3DEX_GBI))
-      lib/PR/f3dex/gspF3DEX.NoN.fifo.o(.text*);
 #else
       #error "Invalid microcode selection."
 #endif
@@ -184,8 +182,6 @@ SECTIONS
 #ifdef ENABLE_LINE_UCODE
    #if (defined(F3DEX_GBI_2))
          lib/PR/f3dzex2/gspL3DZEX2.fifo.o(.text*)
-   #elif (defined(F3DEX_GBI))
-         lib/PR/f3dex/gspL3DEX.fifo.o(.text*)
    #endif
 #endif
 
@@ -225,8 +221,6 @@ SECTIONS
    #endif
 #elif (defined(F3DEX_GBI_2))
       lib/PR/f3dzex2/gspF3DZEX2.NoN.fifo.o(.data*)
-#elif (defined(F3DEX_GBI))
-      lib/PR/f3dex/gspF3DEX.NoN.fifo.o(.data*);
 #else
       #error "Invalid microcode selection."
 #endif
@@ -236,8 +230,6 @@ SECTIONS
 #ifdef ENABLE_LINE_UCODE
    #if (defined(F3DEX_GBI_2))
          lib/PR/f3dzex2/gspL3DZEX2.fifo.o(.data*)
-   #elif (defined(F3DEX_GBI))
-         lib/PR/f3dex/gspL3DEX.fifo.o(.data*)
    #endif
 #endif
 

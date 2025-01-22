@@ -327,8 +327,6 @@ void create_gfx_task_structure(void) {
     #endif
 #elif defined(F3DEX_GBI_2)
     GRUCODE_TASK(F3DZEX2_NoN_fifo)
-#elif defined(F3DEX_GBI)
-    GRUCODE_TASK(F3DEX_NoN_fifo);
 #else
     #error "Invalid microcode selected."
 #endif

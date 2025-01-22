@@ -61,9 +61,7 @@
 #endif
 
 #ifdef F3DEX_VERSION
-    #if F3DEX_VERSION == 1
-        #define F3DEX_GBI
-    #elif F3DEX_VERSION == 2
+    #if F3DEX_VERSION == 2
         #define F3DEX_GBI_2
     #elif F3DEX_VERSION == 3 || F3DEX_VERSION == 4
         #define F3DEX_GBI_3

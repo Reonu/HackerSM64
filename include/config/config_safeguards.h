@@ -83,10 +83,6 @@
     #undef F3DEX3_LIGHTING_ENGINE
 #endif // F3DEX3_LIGHTING_ENGINE
 
-#if !defined(F3DEX_GBI_3) && defined(F3DEX3_FB_MEMCLEAR)
-    #undef F3DEX3_FB_MEMCLEAR
-#endif // F3DEX3_FB_MEMCLEAR
-
 /*****************
  * config_debug.h
  */
@@ -163,6 +159,7 @@
     #undef DEBUG_ASSERTIONS
     #define DEBUG_ASSERTIONS
 #endif // DEBUG
+
 
 /*****************
  * config_camera.h

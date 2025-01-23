@@ -3,18 +3,15 @@
 
 #include "area.h"
 #include "camera.h"
-#include "config/config_rom.h"
 #include "engine/graph_node.h"
 #include "engine/math_util.h"
 #include "game/game_init.h"
-#include "game/ingame_menu.h"
 #include "geo_misc.h"
 #include "gfx_dimensions.h"
 #include "memory.h"
 #include "screen_transition.h"
 #include "segment2.h"
 #include "sm64.h"
-#include "types.h"
 
 u8 sTransitionFadeTimer = 0;
 u16 sTransitionTextureAngle = 0;
@@ -133,6 +130,7 @@ u16 calc_tex_transition_direction(struct WarpTransitionData *transData) {
  */
 s32 render_textured_transition(u8 transTime, struct WarpTransitionData *transData, s8 texID, s8 transTexType) {
     u16 texTransDir = calc_tex_transition_direction(transData);
+
     f32 posDistance = calc_tex_transition_pos_distance(transTime, transData);
     f32 centerTransX = center_tex_transition_x(transData, posDistance, texTransDir);
     f32 centerTransY = center_tex_transition_y(transData, posDistance, texTransDir);
@@ -183,7 +181,6 @@ s32 render_textured_transition(u8 transTime, struct WarpTransitionData *transDat
 
         gDisplayListHead = tempGfxHead;
     }
-
     return set_and_reset_transition_fade_timer(transTime);
 }
 

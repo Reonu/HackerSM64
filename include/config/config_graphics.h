@@ -25,7 +25,7 @@
 /**
  * Spawns floombas on the title screen.
  */
-//#define INTRO_FLOOMBAS
+#define INTRO_FLOOMBAS
 
 /**
  * Enables widescreen (16:9) support.

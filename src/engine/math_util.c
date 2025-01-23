@@ -284,10 +284,10 @@ void mtxf_lookat(Mat4 mtx, Vec3f from, Vec3f to, s16 roll) {
  */
 void mtxf_billboard_generic(Mat4 dest, Mat4 mtx, Vec3f camera, Vec3f axis, Vec3f position, Vec3f scale, s16 angle, s32 isCylindrical) {
     PUPPYPRINT_ADD_COUNTER(gPuppyCallCounter.matrix);
-    register s32 i;
-    register f32 sx = scale[0];
-    register f32 sy = scale[1];
-    register f32 sz = scale[2];
+    s32 i;
+    f32 sx = scale[0];
+    f32 sy = scale[1];
+    f32 sz = scale[2];
 
     if (isCylindrical) {
         Vec3f rotAxis;

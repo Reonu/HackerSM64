@@ -680,47 +680,26 @@ void geo_process_scale(struct GraphNodeScale *node) {
  */
 void geo_process_billboard(struct GraphNodeBillboard *node) {
     Vec3f translation;
+    Vec3f axis;
+    Vec3f camera;
     Vec3f scale = { 1.0f, 1.0f, 1.0f };
 
     vec3s_to_vec3f(translation, node->translation);
-
-    if (gCurGraphNodeHeldObject != NULL) {
-        vec3f_copy(scale, gCurGraphNodeHeldObject->objNode->header.gfx.scale);
-    } else if (gCurGraphNodeObject != NULL) {
-        vec3f_copy(scale, gCurGraphNodeObject->scale);
-    }
-
-    mtxf_billboard(gMatStack[gMatStackIndex + 1], gMatStack[gMatStackIndex], translation, scale, gCurGraphNodeCamera->roll);
-
-    inc_mat_stack();
-    append_dl_and_return((struct GraphNodeDisplayList *)node);
-}
-
-/**
- * Process a cylindrical billboard node. A transformation matrix is created that
- * makes its children face the camera by rotating around a specified axis, and
- * it is pushed on the floating point and fixed point matrix stacks.
- */
-void geo_process_cylindrical_billboard(struct GraphNodeCylindricalBillboard *node) {
-    Vec3f camera;
-    Vec3f axis;
-    Vec3f scale = { 1.0f, 1.0f, 1.0f };
-
-    if (node->useNodePos) {
-        vec3f_diff(camera, gMatStack[gMatStackIndex][3], gCurGraphNodeCamera->pos);
-    } else {
-        vec3f_diff(camera, gCurGraphNodeCamera->focus, gCurGraphNodeCamera->pos);
-    }
-    
     linear_mtxf_mul_vec3(gMatStack[gMatStackIndex], axis, node->axis);
+    vec3f_diff(camera, gMatStack[gMatStackIndex][3], gCurGraphNodeCamera->pos);
+    // vec3f_diff(camera, gCurGraphNodeCamera->focus, gCurGraphNodeCamera->pos);
 
     if (gCurGraphNodeHeldObject != NULL) {
         vec3f_copy(scale, gCurGraphNodeHeldObject->objNode->header.gfx.scale);
     } else if (gCurGraphNodeObject != NULL) {
         vec3f_copy(scale, gCurGraphNodeObject->scale);
     }
-    
-    mtxf_billboard_cylindrical(gMatStack[gMatStackIndex + 1], gMatStack[gMatStackIndex], camera, axis, gVec3fZero, scale, gCurGraphNodeCamera->roll);
+
+    if (node->mode) {
+        mtxf_billboard_cylindrical(gMatStack[gMatStackIndex + 1], gMatStack[gMatStackIndex], camera, axis, translation, scale, gCurGraphNodeCamera->roll);
+    } else {
+        mtxf_billboard(gMatStack[gMatStackIndex + 1], gMatStack[gMatStackIndex], translation, scale, gCurGraphNodeCamera->roll);
+    }
 
     inc_mat_stack();
     append_dl_and_return((struct GraphNodeDisplayList *)node);
@@ -1210,29 +1189,28 @@ typedef void (*GeoProcessFunc)();
 
 // See enum 'GraphNodeTypes' in 'graph_node.h'.
 static GeoProcessFunc GeoProcessJumpTable[] = {
-    [GRAPH_NODE_TYPE_ORTHO_PROJECTION     ] = geo_process_ortho_projection,
-    [GRAPH_NODE_TYPE_PERSPECTIVE          ] = geo_process_perspective,
-    [GRAPH_NODE_TYPE_MASTER_LIST          ] = geo_process_master_list,
-    [GRAPH_NODE_TYPE_LEVEL_OF_DETAIL      ] = geo_process_level_of_detail,
-    [GRAPH_NODE_TYPE_SWITCH_CASE          ] = geo_process_switch,
-    [GRAPH_NODE_TYPE_CAMERA               ] = geo_process_camera,
-    [GRAPH_NODE_TYPE_TRANSLATION_ROTATION ] = geo_process_translation_rotation,
-    [GRAPH_NODE_TYPE_TRANSLATION          ] = geo_process_translation,
-    [GRAPH_NODE_TYPE_ROTATION             ] = geo_process_rotation,
-    [GRAPH_NODE_TYPE_OBJECT               ] = geo_process_object,
-    [GRAPH_NODE_TYPE_ANIMATED_PART        ] = geo_process_animated_part,
-    [GRAPH_NODE_TYPE_BILLBOARD            ] = geo_process_billboard,
-    [GRAPH_NODE_TYPE_DISPLAY_LIST         ] = geo_process_display_list,
-    [GRAPH_NODE_TYPE_SCALE                ] = geo_process_scale,
-    [GRAPH_NODE_TYPE_SHADOW               ] = geo_process_shadow,
-    [GRAPH_NODE_TYPE_OBJECT_PARENT        ] = geo_process_object_parent,
-    [GRAPH_NODE_TYPE_GENERATED_LIST       ] = geo_process_generated_list,
-    [GRAPH_NODE_TYPE_BACKGROUND           ] = geo_process_background,
-    [GRAPH_NODE_TYPE_HELD_OBJ             ] = geo_process_held_object,
-    [GRAPH_NODE_TYPE_CYLINDRICAL_BILLBOARD] = geo_process_cylindrical_billboard,
-    [GRAPH_NODE_TYPE_CULLING_RADIUS       ] = geo_try_process_children,
-    [GRAPH_NODE_TYPE_ROOT                 ] = geo_try_process_children,
-    [GRAPH_NODE_TYPE_START                ] = geo_try_process_children,
+    [GRAPH_NODE_TYPE_ORTHO_PROJECTION    ] = geo_process_ortho_projection,
+    [GRAPH_NODE_TYPE_PERSPECTIVE         ] = geo_process_perspective,
+    [GRAPH_NODE_TYPE_MASTER_LIST         ] = geo_process_master_list,
+    [GRAPH_NODE_TYPE_LEVEL_OF_DETAIL     ] = geo_process_level_of_detail,
+    [GRAPH_NODE_TYPE_SWITCH_CASE         ] = geo_process_switch,
+    [GRAPH_NODE_TYPE_CAMERA              ] = geo_process_camera,
+    [GRAPH_NODE_TYPE_TRANSLATION_ROTATION] = geo_process_translation_rotation,
+    [GRAPH_NODE_TYPE_TRANSLATION         ] = geo_process_translation,
+    [GRAPH_NODE_TYPE_ROTATION            ] = geo_process_rotation,
+    [GRAPH_NODE_TYPE_OBJECT              ] = geo_process_object,
+    [GRAPH_NODE_TYPE_ANIMATED_PART       ] = geo_process_animated_part,
+    [GRAPH_NODE_TYPE_BILLBOARD           ] = geo_process_billboard,
+    [GRAPH_NODE_TYPE_DISPLAY_LIST        ] = geo_process_display_list,
+    [GRAPH_NODE_TYPE_SCALE               ] = geo_process_scale,
+    [GRAPH_NODE_TYPE_SHADOW              ] = geo_process_shadow,
+    [GRAPH_NODE_TYPE_OBJECT_PARENT       ] = geo_process_object_parent,
+    [GRAPH_NODE_TYPE_GENERATED_LIST      ] = geo_process_generated_list,
+    [GRAPH_NODE_TYPE_BACKGROUND          ] = geo_process_background,
+    [GRAPH_NODE_TYPE_HELD_OBJ            ] = geo_process_held_object,
+    [GRAPH_NODE_TYPE_CULLING_RADIUS      ] = geo_try_process_children,
+    [GRAPH_NODE_TYPE_ROOT                ] = geo_try_process_children,
+    [GRAPH_NODE_TYPE_START               ] = geo_try_process_children,
 };
 
 /**

@@ -1,6 +1,8 @@
 #include <PR/ultratypes.h>
 
+#include "PR/gbi.h"
 #include "area.h"
+#include "config/config_rom.h"
 #include "engine/math_util.h"
 #include "game_init.h"
 #include "gfx_dimensions.h"
@@ -19,8 +21,13 @@
 #include "color_presets.h"
 #include "emutest.h"
 
+#ifdef F3DEX3_LIGHTING_ENGINE
+#include "f3dex3.h"
+#endif
+
 #include "config.h"
 #include "config/config_world.h"
+#include "types.h"
 
 /**
  * This file contains the code that processes the scene graph for rendering.
@@ -160,7 +167,6 @@ ALIGNED16 struct GraphNodeCamera *gCurGraphNodeCamera = NULL;
 ALIGNED16 struct GraphNodeObject *gCurGraphNodeObject = NULL;
 ALIGNED16 struct GraphNodeHeldObject *gCurGraphNodeHeldObject = NULL;
 u16 gAreaUpdateCounter = 0;
-LookAt* gCurLookAt;
 
 #if SILHOUETTE
 // AA_EN        Enable anti aliasing (not actually used for AA in this case).
@@ -348,9 +354,6 @@ void geo_process_master_list_sub(struct GraphNodeMasterList *node) {
  * render modes of layers.
  */
 void geo_append_display_list(void *displayList, s32 layer) {
-#ifdef F3DEX_GBI_2
-    gSPLookAt(gDisplayListHead++, gCurLookAt);
-#endif
 #if SILHOUETTE
     if (gCurGraphNodeObject != NULL) {
         if (gCurGraphNodeObject->node.flags & GRAPH_RENDER_SILHOUETTE) {
@@ -534,11 +537,15 @@ Lights1 defaultLight = gdSPDefLights1(
     0x3F, 0x3F, 0x3F, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00
 );
 
-Vec3f globalLightDirection = { 0x28, 0x28, 0x28 };
+Vec3f globalLightDirection = { 0x49, 0x49, 0x49 };
 
 void setup_global_light() {
     Lights1* curLight = (Lights1*)alloc_display_list(sizeof(Lights1));
     bcopy(&defaultLight, curLight, sizeof(Lights1));
+
+#ifdef F3DEX_GBI_3
+    curLight->l->l.size = 1;
+#endif
 
 #ifdef WORLDSPACE_LIGHTING
     curLight->l->l.dir[0] = (s8)(globalLightDirection[0]);
@@ -553,6 +560,10 @@ void setup_global_light() {
 #endif
 
     gSPSetLights1(gDisplayListHead++, (*curLight));
+
+#ifdef F3DEX3_LIGHTING_ENGINE
+    setup_lighting_engine();
+#endif
 }
 
 /**
@@ -571,24 +582,18 @@ void geo_process_camera(struct GraphNodeCamera *node) {
 
     mtxf_lookat(gCameraTransform, node->pos, node->focus, node->roll);
 
-    // Calculate the lookAt
-#ifdef F3DEX_GBI_2
-    // @bug This is where the LookAt values should be calculated but aren't.
-    // As a result, environment mapping is broken on Fast3DEX2 without the
-    // changes below.
     Mat4* cameraMatrix = &gCameraTransform;
-    /**
-    * HackerSM64 2.1: Now uses the correct "up" vector for the guLookAtReflect call in geo_process_master_list_sub.
-    * It was originally sideways in vanilla, with vanilla's environment map textures sideways to accommodate, but those
-    * textures are now rotated automatically on extraction to allow for this to be fixed.
-    */
-    gCurLookAt->l[0].l.dir[0] = (s8)(127.0f * (*cameraMatrix)[0][0]);
-    gCurLookAt->l[0].l.dir[1] = (s8)(127.0f * (*cameraMatrix)[1][0]);
-    gCurLookAt->l[0].l.dir[2] = (s8)(127.0f * (*cameraMatrix)[2][0]);
-    gCurLookAt->l[1].l.dir[0] = (s8)(127.0f * -(*cameraMatrix)[0][1]);
-    gCurLookAt->l[1].l.dir[1] = (s8)(127.0f * -(*cameraMatrix)[1][1]);
-    gCurLookAt->l[1].l.dir[2] = (s8)(127.0f * -(*cameraMatrix)[2][1]);
-#endif // F3DEX_GBI_2
+ 
+    LookAt *lookAt = (LookAt*)alloc_display_list(sizeof(LookAt));
+
+    lookAt->l[0].l.dir[0] = (s8)(127.0f * (*cameraMatrix)[0][0]);
+    lookAt->l[0].l.dir[1] = (s8)(127.0f * (*cameraMatrix)[1][0]);
+    lookAt->l[0].l.dir[2] = (s8)(127.0f * (*cameraMatrix)[2][0]);
+    lookAt->l[1].l.dir[0] = (s8)(127.0f * -(*cameraMatrix)[0][1]);
+    lookAt->l[1].l.dir[1] = (s8)(127.0f * -(*cameraMatrix)[1][1]);
+    lookAt->l[1].l.dir[2] = (s8)(127.0f * -(*cameraMatrix)[2][1]);
+
+    gSPLookAt(gDisplayListHead++, lookAt);
 
 #if WORLD_SCALE > 1
     // Make a copy of the view matrix and scale its translation based on WORLD_SCALE
@@ -604,6 +609,15 @@ void geo_process_camera(struct GraphNodeCamera *node) {
     guMtxF2L(gCameraTransform, viewMtx);
 #endif
     gSPMatrix(gDisplayListHead++, VIRTUAL_TO_PHYSICAL(viewMtx), G_MTX_PROJECTION | G_MTX_MUL | G_MTX_NOPUSH);
+
+#ifdef F3DEX_GBI_3
+    PlainVtx *cameraWorld = alloc_display_list(sizeof(PlainVtx));
+    cameraWorld->c.pos[0] = node->pos[0] / WORLD_SCALE;
+    cameraWorld->c.pos[1] = node->pos[1] / WORLD_SCALE;
+    cameraWorld->c.pos[2] = node->pos[2] / WORLD_SCALE;
+    gSPCameraWorld(gDisplayListHead++, cameraWorld);
+#endif
+
     setup_global_light();
 
     if (node->fnNode.node.children != 0) {
@@ -1117,10 +1131,6 @@ void geo_process_held_object(struct GraphNodeHeldObject *node) {
     Vec3f translation;
     Mat4 tempMtx;
 
-#ifdef F3DEX_GBI_2
-    gSPLookAt(gDisplayListHead++, gCurLookAt);
-#endif
-
     if (node->fnNode.func != NULL) {
         node->fnNode.func(GEO_CONTEXT_RENDER, &node->fnNode.node, gMatStack[gMatStackIndex]);
     }
@@ -1247,18 +1257,25 @@ void geo_process_root(struct GraphNodeRoot *node, Vp *b, Vp *c, s32 clearColor) 
 
         gDisplayListHeap = alloc_only_pool_init(main_pool_available() - sizeof(struct AllocOnlyPool), MEMORY_POOL_LEFT);
         initialMatrix = alloc_display_list(sizeof(*initialMatrix));
-        gCurLookAt = (LookAt*)alloc_display_list(sizeof(LookAt));
-        bzero(gCurLookAt, sizeof(LookAt));
 
         gMatStackIndex = 0;
         gCurrAnimType = ANIM_TYPE_NONE;
+#ifdef F3DEX_GBI_3
+        vec3s_set(viewport->vp.vtrans, node->x * 4, node->y * 4, G_NEW_MAXZ / 2);
+        vec3s_set(viewport->vp.vscale, node->width * 4, node->height * -4, G_NEW_MAXZ / 2);
+#else
         vec3s_set(viewport->vp.vtrans, node->x * 4, node->y * 4, 511);
         vec3s_set(viewport->vp.vscale, node->width * 4, node->height * 4, 511);
+#endif
+
 
         if (b != NULL) {
             clear_framebuffer(clearColor);
             make_viewport_clip_rect(b);
             *viewport = *b;
+#ifdef F3DEX_GBI_3
+            viewport->vp.vscale[1] *= -1;
+#endif
         }
 
         else if (c != NULL) {

@@ -686,8 +686,7 @@ void geo_process_billboard(struct GraphNodeBillboard *node) {
 
     vec3s_to_vec3f(translation, node->translation);
     linear_mtxf_mul_vec3(gMatStack[gMatStackIndex], axis, node->axis);
-    vec3f_diff(camera, gMatStack[gMatStackIndex][3], gCurGraphNodeCamera->pos);
-    // vec3f_diff(camera, gCurGraphNodeCamera->focus, gCurGraphNodeCamera->pos);
+    vec3f_diff(camera, gCurGraphNodeCamera->focus, gCurGraphNodeCamera->pos);
 
     if (gCurGraphNodeHeldObject != NULL) {
         vec3f_copy(scale, gCurGraphNodeHeldObject->objNode->header.gfx.scale);

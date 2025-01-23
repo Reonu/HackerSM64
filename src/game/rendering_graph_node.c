@@ -759,6 +759,7 @@ void geo_process_background(struct GraphNodeBackground *node) {
         Gfx *gfxStart = alloc_display_list(sizeof(Gfx) * 8);
 #endif
         Gfx *gfx = gfxStart;
+
         gDPPipeSync(gfx++);
         gDPSetCycleType(gfx++, G_CYC_FILL);
         gDPSetFillColor(gfx++, node->background);

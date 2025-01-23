@@ -235,6 +235,7 @@ u8 set_transition_color_fade_alpha(s8 fadeType, u8 transTime) {
 
 s32 render_fade_transition_from_color(u8 transTime, struct WarpTransitionData *transData) {
     u8 alpha = set_transition_color_fade_alpha(COLOR_TRANS_FADE_FROM_COLOR, transTime);
+
     return dl_transition_color(transTime, transData, alpha);
 }
 

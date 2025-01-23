@@ -363,7 +363,7 @@ struct GraphNodeBillboard *init_graph_node_billboard(struct AllocOnlyPool *pool,
                                                      s32 drawingLayer, void *displayList,
                                                      Vec3s translation,
                                                      Vec3s axis,
-                                                     u8 mode) {
+                                                     u8 isCylindrical) {
     if (pool != NULL) {
         graphNode = alloc_only_pool_alloc(pool, sizeof(struct GraphNodeBillboard));
     }
@@ -374,7 +374,7 @@ struct GraphNodeBillboard *init_graph_node_billboard(struct AllocOnlyPool *pool,
         vec3s_copy(graphNode->axis, axis);
         SET_GRAPH_NODE_LAYER(graphNode->node.flags, drawingLayer);
         graphNode->displayList = displayList;
-        graphNode->mode = mode;
+        graphNode->isCylindrical = isCylindrical;
     }
 
     return graphNode;

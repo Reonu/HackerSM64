@@ -694,8 +694,8 @@ void geo_process_billboard(struct GraphNodeBillboard *node) {
         vec3f_copy(scale, gCurGraphNodeObject->scale);
     }
 
-    if (node->mode) {
-        mtxf_billboard_cylindrical(gMatStack[gMatStackIndex + 1], gMatStack[gMatStackIndex], camera, axis, translation, scale, gCurGraphNodeCamera->roll);
+    if (node->isCylindrical) {
+        mtxf_billboard_generic(gMatStack[gMatStackIndex + 1], gMatStack[gMatStackIndex], camera, axis, translation, scale, gCurGraphNodeCamera->roll, TRUE);
     } else {
         mtxf_billboard(gMatStack[gMatStackIndex + 1], gMatStack[gMatStackIndex], translation, scale, gCurGraphNodeCamera->roll);
     }

@@ -335,7 +335,7 @@ enum GeoLayoutCommands {
  *   0x01: u8 params
  *      0b1000_0000: if set, enable displayList field and drawingLayer
  *      0b0000_1111: drawingLayer
- *   0x02: u8 mode: if set, use cylindical billboarding
+ *   0x02: u8 isCylindrical: if set, use cylindical billboarding
  *   0x03: unused
  *   0x04: s16 xTranslation
  *   0x06: s16 yTranslation
@@ -345,13 +345,13 @@ enum GeoLayoutCommands {
  *   0x0E: s16 zAxis
  *   0x10: [u32 displayList: if MSbit of params is set, display list segmented address]
  */
-#define GEO_BILLBOARD_WITH_MODE(layer, mode, tx, ty, tz, ax, ay, az) \
-    CMD_BBBB(GEO_CMD_NODE_BILLBOARD, layer, mode, 0x00), \
+#define GEO_BILLBOARD_WITH_MODE(layer, isCylindrical, tx, ty, tz, ax, ay, az) \
+    CMD_BBBB(GEO_CMD_NODE_BILLBOARD, layer, isCylindrical, 0x00), \
     CMD_HH(tx, ty), \
     CMD_HH(tz, ax), \
     CMD_HH(ay, az)
-#define GEO_BILLBOARD_WITH_MODE_AND_DL(layer, mode, tx, ty, tz, ax, ay, az, displayList) \
-    CMD_BBBB(GEO_CMD_NODE_BILLBOARD, (0x80 | layer), mode, 0x00), \
+#define GEO_BILLBOARD_WITH_MODE_AND_DL(layer, isCylindrical, tx, ty, tz, ax, ay, az, displayList) \
+    CMD_BBBB(GEO_CMD_NODE_BILLBOARD, (0x80 | layer), isCylindrical, 0x00), \
     CMD_HH(tx, ty), \
     CMD_HH(tz, ax), \
     CMD_HH(ay, az), \

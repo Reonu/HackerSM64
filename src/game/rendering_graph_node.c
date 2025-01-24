@@ -680,9 +680,13 @@ void geo_process_scale(struct GraphNodeScale *node) {
  */
 void geo_process_billboard(struct GraphNodeBillboard *node) {
     Vec3f translation;
+    Vec3f axis;
+    Vec3f camera;
     Vec3f scale = { 1.0f, 1.0f, 1.0f };
 
     vec3s_to_vec3f(translation, node->translation);
+    linear_mtxf_mul_vec3(gMatStack[gMatStackIndex], axis, node->axis);
+    vec3f_diff(camera, gCurGraphNodeCamera->focus, gCurGraphNodeCamera->pos);
 
     if (gCurGraphNodeHeldObject != NULL) {
         vec3f_copy(scale, gCurGraphNodeHeldObject->objNode->header.gfx.scale);
@@ -690,7 +694,11 @@ void geo_process_billboard(struct GraphNodeBillboard *node) {
         vec3f_copy(scale, gCurGraphNodeObject->scale);
     }
 
-    mtxf_billboard(gMatStack[gMatStackIndex + 1], gMatStack[gMatStackIndex], translation, scale, gCurGraphNodeCamera->roll);
+    if (node->isCylindrical) {
+        mtxf_billboard_generic(gMatStack[gMatStackIndex + 1], gMatStack[gMatStackIndex], camera, axis, translation, scale, gCurGraphNodeCamera->roll, TRUE);
+    } else {
+        mtxf_billboard(gMatStack[gMatStackIndex + 1], gMatStack[gMatStackIndex], translation, scale, gCurGraphNodeCamera->roll);
+    }
 
     inc_mat_stack();
     append_dl_and_return((struct GraphNodeDisplayList *)node);

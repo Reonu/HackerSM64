@@ -276,7 +276,7 @@ void mtxf_lookat(Mat4 mtx, Vec3f from, Vec3f to, s16 roll) {
  * Set 'dest' to a transformation matrix that turns an object to face the camera using either spherical or cylindrical billboarding.
  * 'mtx' is the look-at matrix from the camera.
  * 'camera' is the camera's look direction, only used for cylindrical billboarding
- * 'axis' is the fixed axis around which the object will be rotated, if using cylindrical billboarding
+ * 'axis' is the direction of the fixed axis around which the object will be rotated, if using cylindrical billboarding
  * 'position' is the position of the object in the world.
  * 'scale' is the scale of the object.
  * 'angle' rotates the object while still facing the camera.

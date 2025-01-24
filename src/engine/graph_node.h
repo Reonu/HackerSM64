@@ -253,10 +253,11 @@ struct GraphNodeAnimatedPart {
 };
 
 /** A GraphNode that draws a display list rotated in a way to always face the
- *  camera. Cylindrical (axis-aligned) billboarding can be used instead via
- *  'isCylindrical'. Note that if the entire object is a billboard (like a coin
- *  or 1-up) then it simply sets the billboard flag for the entire object, this
- *  node is used for billboard parts (like a chuckya or goomba body).
+ *  camera. Cylindrical billboarding can be used instead via 'isCylindrical',
+ *  which rotates the display list only around the axis vector.
+ *  Note that if the entire object is a billboard (like a coin or 1-up) then it
+ *  simply sets the billboard flag for the entire object, this node is used for
+ *  billboard parts (like a chuckya or goomba body).
  */
 struct GraphNodeBillboard {
     /*0x00*/ struct GraphNode node;

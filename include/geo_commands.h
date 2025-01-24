@@ -331,7 +331,8 @@ enum GeoLayoutCommands {
     CMD_PTR(displayList)
 
 /**
- * 0x14: Create billboarding node with optional display list
+ * 0x14: Create billboarding node with optional display list. Axis vector must
+ * be non-zero when using cylindrical billboarding.
  *   0x01: u8 params
  *      0b1000_0000: if set, enable displayList field and drawingLayer
  *      0b0000_1111: drawingLayer
